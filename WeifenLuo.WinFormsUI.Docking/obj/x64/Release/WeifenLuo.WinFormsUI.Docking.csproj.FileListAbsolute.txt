@@ -1,0 +1,9 @@
+F:\dev\xr2-prog\binaries\x64\release\license.txt
+F:\dev\xr2-prog\binaries\x64\release\WeifenLuo.WinFormsUI.Docking.dll
+F:\dev\xr2-prog\binaries\x64\release\WeifenLuo.WinFormsUI.Docking.pdb
+F:\dev\xr2-prog\sources\WeifenLuo.WinFormsUI.Docking\obj\x64\Release\ResolveAssemblyReference.cache
+F:\dev\xr2-prog\sources\WeifenLuo.WinFormsUI.Docking\obj\x64\Release\WeifenLuo.WinFormsUI.Docking.Resources.resources
+F:\dev\xr2-prog\sources\WeifenLuo.WinFormsUI.Docking\obj\x64\Release\WeifenLuo.WinFormsUI.Docking.Strings.resources
+F:\dev\xr2-prog\sources\WeifenLuo.WinFormsUI.Docking\obj\x64\Release\WeifenLuo.WinFormsUI.Docking.csproj.GenerateResource.Cache
+F:\dev\xr2-prog\sources\WeifenLuo.WinFormsUI.Docking\obj\x64\Release\WeifenLuo.WinFormsUI.Docking.dll
+F:\dev\xr2-prog\sources\WeifenLuo.WinFormsUI.Docking\obj\x64\Release\WeifenLuo.WinFormsUI.Docking.pdb

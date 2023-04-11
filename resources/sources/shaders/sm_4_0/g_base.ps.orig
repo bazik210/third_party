@@ -1,0 +1,181 @@
+/*	$DEFINES$:
+		GLOBAL_ALLOW_STEEPPARALLAX,
+		GLOBAL_FP16_BLEND,
+		GLOBAL_GBUFFER_POS_PACKING,
+		GLOBAL_GBUFFER_NORMAL_PACKING,
+		GLOBAL_USE_BRANCHING,
+
+		CONFIG_TDIFFUSE,
+		CONFIG_TNORMAL,
+		CONFIG_PARALLAX,
+		CONFIG_TRANSLUCENCY,
+		CONFIG_TSPECULAR_INTENSITY,
+		CONFIG_TSPECULAR_POWER,
+		CONFIG_TDIFFUSE_POWER,
+		CONFIG_TRANSLUCENCY,
+		CONFIG_EMISSIVE,
+		CONFIG_DIFFUSE_ATTENUATION
+		CONFIG_TDETAIL,
+		CONFIG_ALPHA_TEST,
+		CONFIG_REFLECTION,
+*/
+#include "common.h"
+#include "v2p_common.h"
+
+#include "psf_diffuse.h"
+#include "psf_alpha_test.h"
+#include "psf_detail.h"
+#include "psf_normal.h"
+#include "psf_parallax.h"
+#include "psf_translucent.h"
+#include "psf_tspecular_intensity.h"
+#include "psf_tspecular_power.h"
+#include "psf_tdiffuse_power.h"
+#include "psf_emissive.h"
+#include "psf_make_tangent_transform.h"
+#include "psf_reflection.h"
+#include "psf_fresnel.h"
+
+#define V2P_PARAM_H_POSITION 			1
+#define V2P_PARAM_POSITION 				1
+#define V2P_PARAM_NORMAL 				1
+
+#if	CONFIG_TDIFFUSE || CONFIG_TNORMAL || CONFIG_PARALLAX || CONFIG_TRANSLUCENCY || CONFIG_TSPECULAR_INTENSITY \
+	|| CONFIG_TSPECULAR_POWER || CONFIG_TDIFFUSE_POWER	|| (CONFIG_EMISSIVE == 2)
+#	define V2P_PARAM_TC0 				1
+#endif
+
+// not used yet
+// #	define V2P_PARAM_COLOR0				1
+
+#if	CONFIG_TDETAIL
+#	define V2P_PARAM_TC_DETAIL				1
+#endif
+
+#if CONFIG_TNORMAL || CONFIG_PARALLAX
+#	define V2P_PARAM_TANGENTS				1
+#endif
+
+#if	CONFIG_EMISSIVE || (CONFIG_REFLECTION == 1) || CONFIG_DIFFUSE_ATTENUATION
+#	define RT_EXTENTION_TARGET	1
+#endif
+
+#include "v2p_base.h"
+#include "gbuffer.h"
+#include "psf_emissive_write.h"
+
+Texture2D t_translucency;
+Texture2D t_specular_intensity;
+Texture2D t_specular_power;
+Texture2D t_diffuse_power;
+Texture2D t_emission;
+Texture2D t_height_map;
+
+TextureCube t_cubemap;
+/*
+#if CONFIG_DIFFUSE_ATTENUATION
+float4 sun_direction;
+#endif // #if CONFIG_DIFFUSE_ATTENUATION
+*/
+g_struct 	main			( v2p_base input)
+{
+	float3 		position 		= 	input.position;
+	float3	 	normal 			= 	normalize( input.normal);
+	float2 		tc				= 	0.f;
+	float2 		tcdetail		= 	0.f;
+	float3x3	tangent_trans	= 	0.f;
+
+#if	 CONFIG_TDIFFUSE || CONFIG_TNORMAL || CONFIG_PARALLAX || CONFIG_TRANSLUCENCY || CONFIG_TSPECULAR_INTENSITY \
+		|| CONFIG_TSPECULAR_POWER || CONFIG_TDIFFUSE_POWER || (CONFIG_EMISSIVE == 2)
+	tc							= 	input.tc;
+#endif
+
+#if	CONFIG_TDETAIL
+	tcdetail					=	tcdetail;
+#endif
+
+#if	 CONFIG_TNORMAL || CONFIG_PARALLAX
+	tangent_trans 				= 	psf_make_tangent_transform 	( input.tbn_x, input.tbn_y, input.tbn_z);
+#endif
+	
+	if( CONFIG_PARALLAX)
+		tc 						= 	psf_parallax		( t_height_map, position, tc, tangent_trans);
+	
+	float4	D 					= 	float4 ( solid_color_specular.xyz, 1.f);
+	if( CONFIG_TDIFFUSE)
+		D						= 	t_base.Sample	( s_base, tc);
+	 
+	// Alpha test
+	if( CONFIG_ALPHA_TEST)
+		psf_alpha_test			( D.a);
+	
+	// Diffise detail mapping
+	if( CONFIG_TDETAIL)
+		D.rgb					= 	psf_tdetail( t_detail, D.rgb, tc);
+	
+		
+	if( CONFIG_TNORMAL)
+		normal					= 	psf_tnormal( t_normal, tangent_trans, tc);
+	
+	 // Translucency
+	float 	translucensy 		=	solid_material_params.z;
+	if( CONFIG_TRANSLUCENCY)
+		translucensy 			= 	psf_ttranslucency( t_translucency,  tc);
+	
+	float 	specular_intensity 	= 	solid_color_specular.w;
+	if( CONFIG_TSPECULAR_INTENSITY)
+		specular_intensity 		= 	psf_tspecular_intensity( t_specular_intensity, tc);
+	
+	float 	specular_power 		= 	solid_material_params.x;
+	if( CONFIG_TSPECULAR_POWER)
+		specular_power 			= 	psf_tspecular_power( t_specular_power, tc);
+	
+	float 	diffuse_power 		= 	solid_material_params.y;
+	if( CONFIG_TDIFFUSE_POWER)
+		diffuse_power 			= 	psf_tdiffuse_power( t_diffuse_power, tc);
+	
+	float3 	emmision_color		= 	float3( 0, 0, 0);
+	if ( CONFIG_EMISSIVE == 2)
+		emmision_color 			= 	psf_emissive( t_emission, tc, solid_emission_color.rgb);
+	else
+		if ( CONFIG_EMISSIVE == 1)
+			emmision_color		= 	solid_emission_color.rgb;
+	
+	if( CONFIG_REFLECTION == 1)
+		emmision_color			+=	specular_intensity * psf_reflection( float3(0,0,0), t_cubemap, normal, input.position.xyz);
+	else if ( CONFIG_REFLECTION == 2)
+		D.rgb					+=	specular_intensity * lerp( psf_reflection( float3(0,0,0), t_cubemap, normal, input.position.xyz), D.rgb, 0.5);
+/*	
+	#if CONFIG_DIFFUSE_ATTENUATION
+	{
+		float sun_diffuse = phong_infinity_diffuse( position.xyz, normal, sun_direction, 0.0f, diffuse_power);
+		
+		float3 c0 = float3(1,1,1);
+		float3 c1 = solid_diffuse_attenuation_color_from.rgb;
+		float3 c2 = solid_diffuse_attenuation_color_to.rgb;
+		
+		float alpha = pow(1.0-sun_diffuse,0.8);
+		
+		float3 t = lerp(c0,c1,saturate(pow(clamp(alpha,0,0.5)*2,5)));
+		D.rgb 	*= lerp(t,c2,saturate((clamp(alpha,0.5,1)-0.5)*4));
+	}
+	#endif // #if CONFIG_DIFFUSE_ATTENUATION
+*/	
+	// fresnel
+	// emmision_color 				*= psf_fresnel(-normalize(position.xyz), normal, 3.0f);
+	
+	g_struct O		= gbuffer_store ( input.position.xyz, normal.xyz, float4( D.xyz, specular_intensity), solid_material_params.w, translucensy, diffuse_power, specular_power);
+	
+	if ( CONFIG_EMISSIVE || CONFIG_REFLECTION == 1)
+		psf_emissive_write( emmision_color, O);
+	
+	if ( CONFIG_DIFFUSE_ATTENUATION)
+	{
+#if RT_EXTENTION_TARGET
+		O.emissive.rgb = solid_diffuse_attenuation_color.rgb * 0.25f;
+		O.emissive.a   = 1.0f;
+#endif	
+	}
+
+	return O;
+}

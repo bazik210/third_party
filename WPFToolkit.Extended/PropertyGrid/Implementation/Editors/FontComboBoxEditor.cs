@@ -23,7 +23,7 @@ namespace Microsoft.Windows.Controls.PropertyGrid.Editors
 
         private static IList<object> GetFontFamilies()
         {
-#if !VS2008
+#if VS2008
             return Fonts.SystemFontFamilies.ToList<object>();
 #else
             return Fonts.SystemFontFamilies.Cast<object>().ToList();
