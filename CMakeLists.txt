@@ -1,0 +1,21 @@
+# 3rd party libraries
+add_subdirectory(amd)
+add_subdirectory(BugTrap)
+add_subdirectory(minizip)
+add_subdirectory(zlib)
+add_subdirectory(cs)
+add_subdirectory(freeimage)
+add_subdirectory(nvidia)
+add_subdirectory(vorbis)
+add_subdirectory(bullet)
+add_subdirectory(WildMagic)
+add_subdirectory(lua)
+add_subdirectory(luabind)
+add_subdirectory(ode)
+add_subdirectory(ogg)
+add_subdirectory(opcode)
+add_subdirectory(theora)
+
+# C# project directories
+add_subdirectory(WeifenLuo.WinFormsUI.Docking)
+add_subdirectory(WPFToolkit.Extended)
