@@ -156,7 +156,7 @@ namespace boost
       typedef RealType value_type;
       typedef Policy policy_type;
 
-      beta_distribution(RealType alpha = 1, RealType beta = 1) : m_alpha(alpha), m_beta(beta)
+      beta_distribution(RealType l_alpha = 1, RealType l_beta = 1) : m_alpha(l_alpha), m_beta(l_beta)
       {
         RealType result;
         beta_detail::check_dist(
@@ -189,11 +189,10 @@ namespace boost
         static const char* function = "boost::math::beta_distribution<%1%>::find_alpha";
         RealType result = 0; // of error checks.
         if(false ==
-          beta_detail::check_mean(
-          function, mean, &result, Policy())
-          &&
-          beta_detail::check_variance(
-          function, variance, &result, Policy())
+            (
+              beta_detail::check_mean(function, mean, &result, Policy())
+              && beta_detail::check_variance(function, variance, &result, Policy())
+            )
           )
         {
           return result;
@@ -208,11 +207,11 @@ namespace boost
         static const char* function = "boost::math::beta_distribution<%1%>::find_beta";
         RealType result = 0; // of error checks.
         if(false ==
-          beta_detail::check_mean(
-          function, mean, &result, Policy())
-          &&
-          beta_detail::check_variance(
-          function, variance, &result, Policy())
+            (
+              beta_detail::check_mean(function, mean, &result, Policy())
+              &&
+              beta_detail::check_variance(function, variance, &result, Policy())
+            )
           )
         {
           return result;
@@ -231,14 +230,13 @@ namespace boost
         static const char* function = "boost::math::beta_distribution<%1%>::find_alpha";
         RealType result = 0; // of error checks.
         if(false ==
-          beta_detail::check_prob(
-          function, probability, &result, Policy())
-          &&
-          beta_detail::check_beta(
-          function, beta, &result, Policy())
-          &&
-          beta_detail::check_x(
-          function, x, &result, Policy())
+            (
+             beta_detail::check_prob(function, probability, &result, Policy())
+             &&
+             beta_detail::check_beta(function, beta, &result, Policy())
+             &&
+             beta_detail::check_x(function, x, &result, Policy())
+            )
           )
         {
           return result;
@@ -255,14 +253,13 @@ namespace boost
         static const char* function = "boost::math::beta_distribution<%1%>::find_beta";
         RealType result = 0; // of error checks.
         if(false ==
-          beta_detail::check_prob(
-          function, probability, &result, Policy())
-          &&
-          beta_detail::check_alpha(
-          function, alpha, &result, Policy())
-          &&
-          beta_detail::check_x(
-          function, x, &result, Policy())
+            (
+              beta_detail::check_prob(function, probability, &result, Policy())
+              &&
+              beta_detail::check_alpha(function, alpha, &result, Policy())
+              &&
+              beta_detail::check_x(function, x, &result, Policy())
+            )
           )
         {
           return result;
@@ -274,6 +271,13 @@ namespace boost
       RealType m_alpha; // Two parameters of the beta distribution.
       RealType m_beta;
     }; // template <class RealType, class Policy> class beta_distribution
+
+    #ifdef __cpp_deduction_guides
+    template <class RealType>
+    beta_distribution(RealType)->beta_distribution<typename boost::math::tools::promote_args<RealType>::type>;
+    template <class RealType>
+    beta_distribution(RealType, RealType)->beta_distribution<typename boost::math::tools::promote_args<RealType>::type>;
+    #endif
 
     template <class RealType, class Policy>
     inline const std::pair<RealType, RealType> range(const beta_distribution<RealType, Policy>& /* dist */)
@@ -385,6 +389,13 @@ namespace boost
         return result;
       }
       using boost::math::beta;
+
+      // Corner case: check_x ensures x element of [0, 1], but PDF is 0 for x = 0 and x = 1. PDF EQN:
+      // https://wikimedia.org/api/rest_v1/media/math/render/svg/125fdaa41844a8703d1a8610ac00fbf3edacc8e7
+      if(x == 0 || x == 1)
+      {
+        return RealType(0);
+      }
       return ibeta_derivative(a, b, x, Policy());
     } // pdf
 
@@ -487,7 +498,7 @@ namespace boost
       {
         return 1;
       }
-      return ibeta_inv(a, b, p, static_cast<RealType*>(0), Policy());
+      return ibeta_inv(a, b, p, static_cast<RealType*>(nullptr), Policy());
     } // quantile
 
     template <class RealType, class Policy>
@@ -524,7 +535,7 @@ namespace boost
         return 1;
       }
 
-      return ibetac_inv(a, b, q, static_cast<RealType*>(0), Policy());
+      return ibetac_inv(a, b, q, static_cast<RealType*>(nullptr), Policy());
     } // Quantile Complement
 
   } // namespace math

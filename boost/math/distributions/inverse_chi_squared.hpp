@@ -51,7 +51,7 @@ public:
    typedef RealType value_type;
    typedef Policy policy_type;
 
-   inverse_chi_squared_distribution(RealType df, RealType scale) : m_df(df), m_scale (scale)
+   inverse_chi_squared_distribution(RealType df, RealType l_scale) : m_df(df), m_scale (l_scale)
    {
       RealType result;
       detail::check_df(
@@ -96,6 +96,13 @@ private:
 }; // class chi_squared_distribution
 
 typedef inverse_chi_squared_distribution<double> inverse_chi_squared;
+
+#ifdef __cpp_deduction_guides
+template <class RealType>
+inverse_chi_squared_distribution(RealType)->inverse_chi_squared_distribution<typename boost::math::tools::promote_args<RealType>::type>;
+template <class RealType>
+inverse_chi_squared_distribution(RealType,RealType)->inverse_chi_squared_distribution<typename boost::math::tools::promote_args<RealType>::type>;
+#endif
 
 template <class RealType, class Policy>
 inline const std::pair<RealType, RealType> range(const inverse_chi_squared_distribution<RealType, Policy>& /*dist*/)

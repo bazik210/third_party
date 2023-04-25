@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //
-// (C) Copyright Ion Gaztanaga 2005-2009. Distributed under the Boost
+// (C) Copyright Ion Gaztanaga 2005-2012. Distributed under the Boost
 // Software License, Version 1.0. (See accompanying file
 // LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
@@ -11,16 +11,25 @@
 #ifndef BOOST_INTERPROCESS_IUNORDERED_SET_INDEX_HPP
 #define BOOST_INTERPROCESS_IUNORDERED_SET_INDEX_HPP
 
+#ifndef BOOST_CONFIG_HPP
+#  include <boost/config.hpp>
+#endif
+#
+#if defined(BOOST_HAS_PRAGMA_ONCE)
+#  pragma once
+#endif
+
 #include <boost/interprocess/detail/config_begin.hpp>
 #include <boost/interprocess/detail/workaround.hpp>
 
-#include <functional>
-#include <utility>
-#include <boost/get_pointer.hpp>
 #include <boost/interprocess/detail/utilities.hpp>
+#include <boost/interprocess/allocators/allocator.hpp>
 #include <boost/interprocess/containers/vector.hpp>
 #include <boost/intrusive/unordered_set.hpp>
-#include <boost/interprocess/allocators/allocator.hpp>
+#include <boost/intrusive/detail/minimal_pair_header.hpp>
+#include <boost/intrusive/detail/minimal_less_equal_header.hpp>   //std::less
+#include <boost/container/detail/minimal_char_traits_header.hpp>  //std::char_traits
+#include <boost/container/detail/placement_new.hpp>
 
 //!\file
 //!Describes index adaptor of boost::intrusive::unordered_set container, to use it
@@ -28,24 +37,24 @@
 
 namespace boost { namespace interprocess {
 
-/// @cond
+#if !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 
 //!Helper class to define typedefs
 //!from IndexTraits
 template <class MapConfig>
 struct iunordered_set_index_aux
 {
-   typedef typename 
+   typedef typename
       MapConfig::segment_manager_base                 segment_manager_base;
 
-   typedef typename 
+   typedef typename
       segment_manager_base::void_pointer              void_pointer;
 
    typedef typename bi::make_unordered_set_base_hook
       < bi::void_pointer<void_pointer>
       >::type        derivation_hook;
 
-   typedef typename MapConfig::template 
+   typedef typename MapConfig::template
       intrusive_value_type<derivation_hook>::type     value_type;
 
    typedef typename MapConfig::
@@ -58,33 +67,35 @@ struct iunordered_set_index_aux
    struct equal_function
    {
       bool operator()(const intrusive_compare_key_type &i, const value_type &b) const
-      {  
+      {
          return (i.m_len == b.name_length()) &&
-                  (std::char_traits<char_type>::compare 
+                  (std::char_traits<char_type>::compare
                      (i.mp_str, b.name(), i.m_len) == 0);
       }
 
       bool operator()(const value_type &b, const intrusive_compare_key_type &i) const
-      {  
+      {
          return (i.m_len == b.name_length()) &&
-                  (std::char_traits<char_type>::compare 
+                  (std::char_traits<char_type>::compare
                      (i.mp_str, b.name(), i.m_len) == 0);
       }
 
       bool operator()(const value_type &b1, const value_type &b2) const
-      {  
+      {
          return (b1.name_length() == b2.name_length()) &&
-                  (std::char_traits<char_type>::compare 
+                  (std::char_traits<char_type>::compare
                      (b1.name(), b2.name(), b1.name_length()) == 0);
       }
    };
 
     struct hash_function
-      : std::unary_function<value_type, std::size_t>
     {
+        typedef value_type argument_type;
+        typedef std::size_t result_type;
+
         std::size_t operator()(const value_type &val) const
         {
-            const char_type *beg = ipcdetail::get_pointer(val.name()),
+            const char_type *beg = ipcdetail::to_raw_pointer(val.name()),
                             *end = beg + val.name_length();
             return boost::hash_range(beg, end);
         }
@@ -116,10 +127,10 @@ struct iunordered_set_index_aux
       bucket_type init_bucket;
    };
 };
-/// @endcond
+#endif   //#ifndef BOOST_INTERPROCESS_DOXYGEN_INVOKED
 
 //!Index type based in boost::intrusive::set.
-//!Just derives from boost::intrusive::set 
+//!Just derives from boost::intrusive::set
 //!and defines the interface needed by managed memory segments
 template <class MapConfig>
 class iunordered_set_index
@@ -127,7 +138,7 @@ class iunordered_set_index
    :  private iunordered_set_index_aux<MapConfig>::allocator_holder
    ,  public iunordered_set_index_aux<MapConfig>::index_t
 {
-   /// @cond
+   #if !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    typedef iunordered_set_index_aux<MapConfig>           index_aux;
    typedef typename index_aux::index_t                   index_type;
    typedef typename MapConfig::
@@ -135,11 +146,11 @@ class iunordered_set_index
    typedef typename index_aux::equal_function            equal_function;
    typedef typename index_aux::hash_function             hash_function;
    typedef typename MapConfig::char_type                 char_type;
-   typedef typename 
+   typedef typename
       iunordered_set_index_aux<MapConfig>::allocator_type      allocator_type;
-   typedef typename 
+   typedef typename
       iunordered_set_index_aux<MapConfig>::allocator_holder    allocator_holder;
-   /// @endcond
+   #endif   //#ifndef BOOST_INTERPROCESS_DOXYGEN_INVOKED
 
    public:
    typedef typename index_type::iterator                 iterator;
@@ -150,13 +161,14 @@ class iunordered_set_index
    typedef typename index_type::bucket_type              bucket_type;
    typedef typename index_type::bucket_traits            bucket_traits;
    typedef typename index_type::size_type                size_type;
+   typedef typename index_type::difference_type          difference_type;
 
-   /// @cond
+   #if !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
    private:
    typedef typename index_aux::
       segment_manager_base             segment_manager_base;
 
-   enum {   InitBufferSize = 64};
+   static const std::size_t InitBufferSize = 64;
 
    static bucket_ptr create_buckets(allocator_type &alloc, size_type num)
    {
@@ -164,7 +176,7 @@ class iunordered_set_index
       bucket_ptr buckets = alloc.allocate(num);
       bucket_ptr buckets_init = buckets;
       for(size_type i = 0; i < num; ++i){
-         new(get_pointer(buckets_init++))bucket_type();
+         ::new(to_raw_pointer(buckets_init++), boost_container_new_t())bucket_type();
       }
       return buckets;
    }
@@ -175,26 +187,26 @@ class iunordered_set_index
    {
       if(old_size <= new_size )
          return old_size;
-      size_type received_size;
+      size_type received_size = new_size;
       if(!alloc.allocation_command
-         (boost::interprocess::try_shrink_in_place | boost::interprocess::nothrow_allocation, old_size, new_size, received_size, buckets).first){
+         (boost::interprocess::try_shrink_in_place | boost::interprocess::nothrow_allocation, old_size, received_size, buckets)){
          return old_size;
       }
 
-      for( bucket_type *p = ipcdetail::get_pointer(buckets) + received_size
-         , *pend = ipcdetail::get_pointer(buckets) + old_size
+      for( bucket_type *p = ipcdetail::to_raw_pointer(buckets) + received_size
+         , *pend = ipcdetail::to_raw_pointer(buckets) + old_size
          ; p != pend
          ; ++p){
          p->~bucket_type();
       }
 
       bucket_ptr shunk_p = alloc.allocation_command
-         (boost::interprocess::shrink_in_place | boost::interprocess::nothrow_allocation, received_size, received_size, received_size, buckets).first;
-      BOOST_ASSERT(buckets == shunk_p);
+         (boost::interprocess::shrink_in_place | boost::interprocess::nothrow_allocation, received_size, received_size, buckets);
+      BOOST_ASSERT(buckets == shunk_p); (void)shunk_p;
 
-      bucket_ptr buckets_init = buckets + received_size;
+      bucket_ptr buckets_init = buckets + difference_type(received_size);
       for(size_type i = 0; i < (old_size - received_size); ++i){
-         get_pointer(buckets_init++)->~bucket_type();
+         to_raw_pointer(buckets_init++)->~bucket_type();
       }
       return received_size;
    }
@@ -203,24 +215,23 @@ class iunordered_set_index
       ( bucket_ptr old_buckets, const size_type old_num
       , allocator_type &alloc,  const size_type new_num)
    {
-      size_type received_size;
-      std::pair<bucket_ptr, bool> ret =
-         alloc.allocation_command
-            (boost::interprocess::expand_fwd | boost::interprocess::allocate_new, new_num, new_num, received_size, old_buckets);
-      if(ret.first == old_buckets){
-         bucket_ptr buckets_init = old_buckets + old_num;
+      size_type received_size = new_num;
+      bucket_ptr reuse(old_buckets);
+      bucket_ptr ret = alloc.allocation_command
+            (boost::interprocess::expand_fwd | boost::interprocess::allocate_new, new_num, received_size, reuse);
+      if(ret == old_buckets){
+         bucket_ptr buckets_init = old_buckets + difference_type(old_num);
          for(size_type i = 0; i < (new_num - old_num); ++i){
-            new(get_pointer(buckets_init++))bucket_type();
+            ::new(to_raw_pointer(buckets_init++), boost_container_new_t())bucket_type();
          }
       }
       else{
-         bucket_ptr buckets_init = ret.first;
+         bucket_ptr buckets_init = ret;
          for(size_type i = 0; i < new_num; ++i){
-            new(get_pointer(buckets_init++))bucket_type();
+            ::new(to_raw_pointer(buckets_init++), boost_container_new_t())bucket_type();
          }
       }
-
-      return ret.first;
+      return ret;
    }
 
    static void destroy_buckets
@@ -228,7 +239,7 @@ class iunordered_set_index
    {
       bucket_ptr buckets_destroy = buckets;
       for(size_type i = 0; i < num; ++i){
-         get_pointer(buckets_destroy++)->~bucket_type();
+         to_raw_pointer(buckets_destroy++)->~bucket_type();
       }
       alloc.deallocate(buckets, num);
    }
@@ -236,7 +247,7 @@ class iunordered_set_index
    iunordered_set_index<MapConfig>* get_this_pointer()
    {  return this;   }
 
-   /// @endcond
+   #endif   //#ifndef BOOST_INTERPROCESS_DOXYGEN_INVOKED
 
    public:
    //!Constructor. Takes a pointer to the
@@ -266,15 +277,15 @@ class iunordered_set_index
       new_n = index_type::suggested_upper_bucket_count(new_n);
       bucket_ptr new_p;
       //This can throw
-      try{
+      BOOST_TRY{
          if(old_p != bucket_ptr(&this->init_bucket))
             new_p = expand_or_create_buckets(old_p, old_n, this->alloc, new_n);
          else
             new_p = create_buckets(this->alloc, new_n);
       }
-      catch(...){
+      BOOST_CATCH(...){
          return;
-      }
+      } BOOST_CATCH_END
       //Rehashing does not throw, since neither the hash nor the
       //comparison function can throw
       this->rehash(bucket_traits(new_p, new_n));
@@ -290,7 +301,7 @@ class iunordered_set_index
       size_type cur_size   = this->size();
       size_type cur_count  = this->bucket_count();
       bucket_ptr old_p = this->bucket_pointer();
-      
+
       if(!this->size() && old_p != bucket_ptr(&this->init_bucket)){
          this->rehash(bucket_traits(bucket_ptr(&this->init_bucket), 1));
          destroy_buckets(this->alloc, old_p, cur_count);
@@ -302,12 +313,12 @@ class iunordered_set_index
          if(sug_count >= cur_count)
             return;
 
-         try{
+         BOOST_TRY{
             shrink_buckets(old_p, cur_count, this->alloc, sug_count);
          }
-         catch(...){
+         BOOST_CATCH(...){
             return;
-         }
+         } BOOST_CATCH_END
 
          //Rehashing does not throw, since neither the hash nor the
          //comparison function can throw
@@ -330,26 +341,26 @@ class iunordered_set_index
       iterator it = index_type::insert_commit(val, commit_data);
       size_type cur_size      = this->size();
       if(cur_size > this->bucket_count()){
-         try{
+         BOOST_TRY{
             this->reserve(cur_size);
          }
-         catch(...){
+         BOOST_CATCH(...){
             //Strong guarantee: if something goes wrong
             //we should remove the insertion.
             //
-            //We can use the iterator because the hash function   
+            //We can use the iterator because the hash function
             //can't throw and this means that "reserve" will
             //throw only because of the memory allocation:
             //the iterator has not been invalidated.
             index_type::erase(it);
-            throw;
-         }
+            BOOST_RETHROW
+         } BOOST_CATCH_END
       }
       return it;
    }
 };
 
-/// @cond
+#if !defined(BOOST_INTERPROCESS_DOXYGEN_INVOKED)
 
 //!Trait class to detect if an index is an intrusive
 //!index
@@ -357,9 +368,9 @@ template<class MapConfig>
 struct is_intrusive_index
    <boost::interprocess::iunordered_set_index<MapConfig> >
 {
-   enum{ value = true };
+   static const bool value = true;
 };
-/// @endcond
+#endif   //#ifndef BOOST_INTERPROCESS_DOXYGEN_INVOKED
 
 }}   //namespace boost { namespace interprocess {
 

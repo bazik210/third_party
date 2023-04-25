@@ -15,11 +15,11 @@
 #	error do not define CS_PLATFORM_WINDOWS_32 macro
 #endif // #ifdef CS_PLATFORM_WINDOWS_32
 
-#ifdef WIN32
+#ifdef PLATFORM_WIN32
 #	define CS_PLATFORM_WINDOWS_32	1
-#else // #ifdef WIN32
+#else // #ifdef PLATFORM_WIN32
 #	define CS_PLATFORM_WINDOWS_32	0
-#endif // #ifdef WIN32
+#endif // #ifdef PLATFORM_WIN32
 
 ////////////////////////////////////////////////////////////////////////////
 // CS_PLATFORM_WINDOWS_64
@@ -28,11 +28,11 @@
 #	error do not define CS_PLATFORM_WINDOWS_64 macro
 #endif // #ifdef CS_PLATFORM_WINDOWS_64
 
-#ifdef WIN64
+#ifdef PLATFORM_WIN64
 #	define CS_PLATFORM_WINDOWS_64	1
-#else // #ifdef WIN32
+#else // #ifdef PLATFORM_WIN64
 #	define CS_PLATFORM_WINDOWS_64	0
-#endif // #ifdef WIN32
+#endif // #ifdef PLATFORM_WIN64
 
 ////////////////////////////////////////////////////////////////////////////
 // CS_PLATFORM_WINDOWS

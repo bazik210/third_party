@@ -1,8 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2011 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2020.
+// Modifications copyright (c) 2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -14,15 +18,21 @@
 #ifndef BOOST_GEOMETRY_GEOMETRIES_REGISTER_POINT_HPP
 #define BOOST_GEOMETRY_GEOMETRIES_REGISTER_POINT_HPP
 
+#include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/coordinate_dimension.hpp>
+#include <boost/geometry/core/coordinate_system.hpp>
+#include <boost/geometry/core/coordinate_type.hpp>
+#include <boost/geometry/core/cs.hpp>
 
 #include <cstddef>
+#include <type_traits>
 
 #ifndef DOXYGEN_NO_SPECIALIZATIONS
 
 // Starting point, specialize basic traits necessary to register a point
 #define BOOST_GEOMETRY_DETAIL_SPECIALIZE_POINT_TRAITS(Point, Dim, CoordinateType, CoordinateSystem) \
     template<> struct tag<Point> { typedef point_tag type; }; \
-    template<> struct dimension<Point> : boost::mpl::int_<Dim> {}; \
+    template<> struct dimension<Point> : std::integral_constant<std::size_t, Dim> {}; \
     template<> struct coordinate_type<Point> { typedef CoordinateType type; }; \
     template<> struct coordinate_system<Point> { typedef CoordinateSystem type; };
 

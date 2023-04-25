@@ -1,8 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2011 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -14,15 +18,18 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_CLEAR_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_CLEAR_HPP
 
-#include <boost/mpl/assert.hpp>
-#include <boost/type_traits/remove_const.hpp>
 
+#include <type_traits>
+
+#include <boost/geometry/algorithms/not_implemented.hpp>
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
 #include <boost/geometry/core/mutable_range.hpp>
 #include <boost/geometry/core/tag_cast.hpp>
-
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/core/visit.hpp>
+#include <boost/geometry/geometries/adapted/boost_variant.hpp> // for backward compatibility
 #include <boost/geometry/geometries/concepts/check.hpp>
 
 
@@ -49,14 +56,14 @@ struct polygon_clear
     {
         traits::clear
             <
-                typename boost::remove_reference
+                typename std::remove_reference
                     <
                         typename traits::interior_mutable_type<Polygon>::type
                     >::type
             >::apply(interior_rings(polygon));
         traits::clear
             <
-                typename boost::remove_reference
+                typename std::remove_reference
                     <
                         typename traits::ring_mutable_type<Polygon>::type
                     >::type
@@ -72,6 +79,7 @@ struct no_action
     }
 };
 
+
 }} // namespace detail::clear
 #endif // DOXYGEN_NO_DETAIL
 
@@ -79,48 +87,75 @@ struct no_action
 namespace dispatch
 {
 
-template <typename Tag, typename Geometry>
-struct clear
-{
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
-};
+template
+<
+    typename Geometry,
+    typename Tag = typename tag_cast<typename tag<Geometry>::type, multi_tag>::type
+>
+struct clear: not_implemented<Tag>
+{};
 
 // Point/box/segment do not have clear. So specialize to do nothing.
 template <typename Geometry>
-struct clear<point_tag, Geometry>
+struct clear<Geometry, point_tag>
     : detail::clear::no_action<Geometry>
 {};
 
 template <typename Geometry>
-struct clear<box_tag, Geometry>
+struct clear<Geometry, box_tag>
     : detail::clear::no_action<Geometry>
 {};
 
 template <typename Geometry>
-struct clear<segment_tag, Geometry>
+struct clear<Geometry, segment_tag>
     : detail::clear::no_action<Geometry>
 {};
 
 template <typename Geometry>
-struct clear<linestring_tag, Geometry>
+struct clear<Geometry, linestring_tag>
     : detail::clear::collection_clear<Geometry>
 {};
 
 template <typename Geometry>
-struct clear<ring_tag, Geometry>
+struct clear<Geometry, ring_tag>
     : detail::clear::collection_clear<Geometry>
 {};
 
 
 // Polygon can (indirectly) use std for clear
 template <typename Polygon>
-struct clear<polygon_tag, Polygon>
+struct clear<Polygon, polygon_tag>
     : detail::clear::polygon_clear<Polygon>
 {};
+
+
+template <typename Geometry>
+struct clear<Geometry, multi_tag>
+    : detail::clear::collection_clear<Geometry>
+{};
+
+
+template <typename Geometry>
+struct clear<Geometry, dynamic_geometry_tag>
+{
+    static void apply(Geometry& geometry)
+    {
+        traits::visit<Geometry>::apply([](auto & g)
+        {
+            clear<std::remove_reference_t<decltype(g)>>::apply(g);
+        }, geometry);
+    }
+};
+
+
+template <typename Geometry>
+struct clear<Geometry, geometry_collection_tag>
+{
+    static void apply(Geometry& geometry)
+    {
+        traits::clear<Geometry>::apply(geometry);
+    }
+};
 
 
 } // namespace dispatch
@@ -143,13 +178,9 @@ struct clear<polygon_tag, Polygon>
 template <typename Geometry>
 inline void clear(Geometry& geometry)
 {
-    concept::check<Geometry>();
+    concepts::check<Geometry>();
 
-    dispatch::clear
-        <
-            typename tag_cast<typename tag<Geometry>::type, multi_tag>::type,
-            Geometry
-        >::apply(geometry);
+    dispatch::clear<Geometry>::apply(geometry);
 }
 
 

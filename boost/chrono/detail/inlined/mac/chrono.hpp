@@ -13,6 +13,7 @@
 
 #include <sys/time.h> //for gettimeofday and timeval
 #include <mach/mach_time.h>  // mach_absolute_time, mach_timebase_info_data_t
+#include <boost/assert.hpp>
 
 namespace boost
 {
@@ -26,10 +27,10 @@ namespace chrono
 // which has a field for seconds and a field for microseconds.
 //    Fill in the timeval and then convert that to the time_point
 system_clock::time_point
-system_clock::now() BOOST_CHRONO_NOEXCEPT
+system_clock::now() BOOST_NOEXCEPT
 {
     timeval tv;
-    gettimeofday(&tv, 0);
+    gettimeofday(&tv, BOOST_NULLPTR);
     return time_point(seconds(tv.tv_sec) + microseconds(tv.tv_usec));
 }
 
@@ -38,8 +39,8 @@ system_clock::time_point
 system_clock::now(system::error_code & ec)
 {
     timeval tv;
-    gettimeofday(&tv, 0);
-    if (!BOOST_CHRONO_IS_THROWS(ec)) 
+    gettimeofday(&tv, BOOST_NULLPTR);
+    if (!::boost::chrono::is_throws(ec))
     {
         ec.clear();
     }
@@ -50,14 +51,14 @@ system_clock::now(system::error_code & ec)
 //    an integral count of seconds since New Years 1970 (same epoch as timeval).
 //    Just get the duration out of the time_point and truncate it to seconds.
 time_t
-system_clock::to_time_t(const time_point& t) BOOST_CHRONO_NOEXCEPT
+system_clock::to_time_t(const time_point& t) BOOST_NOEXCEPT
 {
     return time_t(duration_cast<seconds>(t.time_since_epoch()).count());
 }
 
 // Just turn the time_t into a count of seconds and construct a time_point with it.
 system_clock::time_point
-system_clock::from_time_t(time_t t) BOOST_CHRONO_NOEXCEPT
+system_clock::from_time_t(time_t t) BOOST_NOEXCEPT
 {
     return system_clock::time_point(seconds(t));
 }
@@ -88,7 +89,7 @@ BOOST_CHRONO_STATIC
 steady_clock::rep
 steady_simplified_ec(system::error_code & ec)
 {
-    if (!BOOST_CHRONO_IS_THROWS(ec)) 
+    if (!::boost::chrono::is_throws(ec))
     {
         ec.clear();
     }
@@ -112,9 +113,9 @@ BOOST_CHRONO_STATIC
 steady_clock::rep
 steady_full()
 {
-    static kern_return_t err;
-    static const double factor = chrono_detail::compute_steady_factor(err);
-    if (err != 0) 
+    kern_return_t err;
+    const double factor = chrono_detail::compute_steady_factor(err);
+    if (err != 0)
     {
       BOOST_ASSERT(0 && "Boost::Chrono - Internal Error");
     }
@@ -126,25 +127,25 @@ BOOST_CHRONO_STATIC
 steady_clock::rep
 steady_full_ec(system::error_code & ec)
 {
-    static kern_return_t err;
-    static const double factor = chrono_detail::compute_steady_factor(err);
-    if (err != 0) 
+    kern_return_t err;
+    const double factor = chrono_detail::compute_steady_factor(err);
+    if (err != 0)
     {
-        if (BOOST_CHRONO_IS_THROWS(ec))
+        if (::boost::chrono::is_throws(ec))
         {
             boost::throw_exception(
-                    system::system_error( 
-                            err, 
-                            BOOST_CHRONO_SYSTEM_CATEGORY, 
+                    system::system_error(
+                            err,
+                            ::boost::system::system_category(),
                             "chrono::steady_clock" ));
-        } 
+        }
         else
         {
-            ec.assign( errno, BOOST_CHRONO_SYSTEM_CATEGORY );
+            ec.assign( errno, ::boost::system::system_category() );
             return steady_clock::rep();
         }
     }
-    if (!BOOST_CHRONO_IS_THROWS(ec)) 
+    if (!::boost::chrono::is_throws(ec))
     {
         ec.clear();
     }
@@ -163,9 +164,9 @@ init_steady_clock(kern_return_t & err)
 {
     mach_timebase_info_data_t MachInfo;
     err = mach_timebase_info(&MachInfo);
-    if ( err != 0  ) 
+    if ( err != 0  )
     {
-        return 0;
+        return BOOST_NULLPTR;
     }
 
     if (MachInfo.numer == MachInfo.denom)
@@ -182,12 +183,12 @@ init_steady_clock_ec(kern_return_t & err)
 {
     mach_timebase_info_data_t MachInfo;
     err = mach_timebase_info(&MachInfo);
-    if ( err != 0  ) 
+    if ( err != 0  )
     {
-        return 0;
+        return BOOST_NULLPTR;
     }
 
-    if (MachInfo.numer == MachInfo.denom) 
+    if (MachInfo.numer == MachInfo.denom)
     {
         return &chrono_detail::steady_simplified_ec;
     }
@@ -197,12 +198,12 @@ init_steady_clock_ec(kern_return_t & err)
 }
 
 steady_clock::time_point
-steady_clock::now() BOOST_CHRONO_NOEXCEPT
+steady_clock::now() BOOST_NOEXCEPT
 {
-    static kern_return_t err;
-    static chrono_detail::FP fp = chrono_detail::init_steady_clock(err);
-    if ( err != 0  ) 
-    {     
+    kern_return_t err;
+    chrono_detail::FP fp = chrono_detail::init_steady_clock(err);
+    if ( err != 0  )
+    {
       BOOST_ASSERT(0 && "Boost::Chrono - Internal Error");
     }
     return time_point(duration(fp()));
@@ -212,25 +213,25 @@ steady_clock::now() BOOST_CHRONO_NOEXCEPT
 steady_clock::time_point
 steady_clock::now(system::error_code & ec)
 {
-    static kern_return_t err;
-    static chrono_detail::FP_ec fp = chrono_detail::init_steady_clock_ec(err);
-    if ( err != 0  ) 
+    kern_return_t err;
+    chrono_detail::FP_ec fp = chrono_detail::init_steady_clock_ec(err);
+    if ( err != 0  )
     {
-        if (BOOST_CHRONO_IS_THROWS(ec))
+        if (::boost::chrono::is_throws(ec))
         {
             boost::throw_exception(
-                    system::system_error( 
-                            err, 
-                            BOOST_CHRONO_SYSTEM_CATEGORY, 
+                    system::system_error(
+                            err,
+                            ::boost::system::system_category(),
                             "chrono::steady_clock" ));
         }
         else
         {
-            ec.assign( err, BOOST_CHRONO_SYSTEM_CATEGORY );
+            ec.assign( err, ::boost::system::system_category() );
             return time_point();
         }
     }
-    if (!BOOST_CHRONO_IS_THROWS(ec)) 
+    if (!::boost::chrono::is_throws(ec))
     {
         ec.clear();
     }

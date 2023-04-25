@@ -1,35 +1,55 @@
-//  boost/filesystem/convenience.hpp  --------------------------------------------------//
+//  boost/filesystem/convenience.hpp  ----------------------------------------//
 
-//  Copyright Beman Dawes 2010
+//  Copyright Beman Dawes, 2002-2005
+//  Copyright Vladimir Prus, 2002
 
-//  Distributed under the Boost Software License, Version 1.0.
-//  See http://www.boost.org/LICENSE_1_0.txt
+//  Use, modification, and distribution is subject to the Boost Software
+//  License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
+//  http://www.boost.org/LICENSE_1_0.txt)
 
-//  Library home page: http://www.boost.org/libs/filesystem
+//  See library home page at http://www.boost.org/libs/filesystem
 
-//--------------------------------------------------------------------------------------// 
+//----------------------------------------------------------------------------//
 
-#ifndef BOOST_FILESYSTEM_CONVENIENCEX_HPP
-#define BOOST_FILESYSTEM_CONVENIENCEX_HPP
+#ifndef BOOST_FILESYSTEM_CONVENIENCE_HPP
+#define BOOST_FILESYSTEM_CONVENIENCE_HPP
 
-#include <boost/config.hpp>  // for <boost/config/user.hpp>, in case
-                             //  BOOST_FILESYSTEM_VERSION defined there
+#include <boost/filesystem/config.hpp>
+#include <boost/filesystem/operations.hpp>
+#include <boost/system/error_code.hpp>
 
-# if defined(BOOST_FILESYSTEM_VERSION) \
-  && BOOST_FILESYSTEM_VERSION != 2  && BOOST_FILESYSTEM_VERSION != 3
-#   error BOOST_FILESYSTEM_VERSION defined, but not as 2 or 3
-# endif
+#include <boost/filesystem/detail/header.hpp> // must be the last #include
 
-# if !defined(BOOST_FILESYSTEM_VERSION)
-#   define BOOST_FILESYSTEM_VERSION 3
-# endif
+namespace boost {
+namespace filesystem {
 
-#if BOOST_FILESYSTEM_VERSION == 2
-#  include <boost/filesystem/v2/convenience.hpp>
+#ifndef BOOST_FILESYSTEM_NO_DEPRECATED
 
-# else
-#  include <boost/filesystem/v3/convenience.hpp>
+BOOST_FILESYSTEM_DETAIL_DEPRECATED("Use path::extension() instead")
+inline std::string extension(const path& p)
+{
+    return p.extension().string();
+}
 
-# endif
+BOOST_FILESYSTEM_DETAIL_DEPRECATED("Use path::stem() instead")
+inline std::string basename(const path& p)
+{
+    return p.stem().string();
+}
 
-#endif  // BOOST_FILESYSTEM_CONVENIENCEX_HPP 
+BOOST_FILESYSTEM_DETAIL_DEPRECATED("Use path::replace_extension() instead")
+inline path change_extension(const path& p, const path& new_extension)
+{
+    path new_p(p);
+    new_p.replace_extension(new_extension);
+    return new_p;
+}
+
+#endif
+
+} // namespace filesystem
+} // namespace boost
+
+#include <boost/filesystem/detail/footer.hpp>
+
+#endif // BOOST_FILESYSTEM_CONVENIENCE_HPP

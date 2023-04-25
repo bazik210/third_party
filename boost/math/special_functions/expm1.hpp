@@ -10,21 +10,26 @@
 #pragma once
 #endif
 
-#include <boost/config/no_tr1/cmath.hpp>
-#include <math.h> // platform's ::expm1
-#include <boost/limits.hpp>
+#include <cmath>
+#include <cstdint>
+#include <limits>
 #include <boost/math/tools/config.hpp>
 #include <boost/math/tools/series.hpp>
 #include <boost/math/tools/precision.hpp>
+#include <boost/math/tools/big_constant.hpp>
 #include <boost/math/policies/error_handling.hpp>
 #include <boost/math/tools/rational.hpp>
 #include <boost/math/special_functions/math_fwd.hpp>
-#include <boost/mpl/less_equal.hpp>
+#include <boost/math/tools/assert.hpp>
 
-#ifndef BOOST_NO_LIMITS_COMPILE_TIME_CONSTANTS
-#  include <boost/static_assert.hpp>
-#else
-#  include <boost/assert.hpp>
+#if defined(__GNUC__) && defined(BOOST_MATH_USE_FLOAT128)
+//
+// This is the only way we can avoid
+// warning: non-standard suffix on floating constant [-Wpedantic]
+// when building with -Wall -pedantic.  Neither __extension__
+// nor #pragma diagnostic ignored work :(
+//
+#pragma GCC system_header
 #endif
 
 namespace boost{ namespace math{
@@ -60,9 +65,40 @@ namespace detail
      int k;
      const T m_x;
      T m_term;
-     expm1_series(const expm1_series&);
-     expm1_series& operator=(const expm1_series&);
+     expm1_series(const expm1_series&) = delete;
+     expm1_series& operator=(const expm1_series&) = delete;
   };
+
+template <class T, class Policy, class tag>
+struct expm1_initializer
+{
+   struct init
+   {
+      init()
+      {
+         do_init(tag());
+      }
+      template <int N>
+      static void do_init(const std::integral_constant<int, N>&){}
+      static void do_init(const std::integral_constant<int, 64>&)
+      {
+         expm1(T(0.5));
+      }
+      static void do_init(const std::integral_constant<int, 113>&)
+      {
+         expm1(T(0.5));
+      }
+      void force_instantiate()const{}
+   };
+   static const init initializer;
+   static void force_instantiate()
+   {
+      initializer.force_instantiate();
+   }
+};
+
+template <class T, class Policy, class tag>
+const typename expm1_initializer<T, Policy, tag>::init expm1_initializer<T, Policy, tag>::initializer;
 
 //
 // Algorithm expm1 is part of C99, but is not yet provided by many compilers.
@@ -70,17 +106,21 @@ namespace detail
 // This version uses a Taylor series expansion for 0.5 > |x| > epsilon.
 //
 template <class T, class Policy>
-T expm1_imp(T x, const mpl::int_<0>&, const Policy& pol)
+T expm1_imp(T x, const std::integral_constant<int, 0>&, const Policy& pol)
 {
    BOOST_MATH_STD_USING
 
    T a = fabs(x);
+   if((boost::math::isnan)(a))
+   {
+      return policies::raise_domain_error<T>("boost::math::expm1<%1%>(%1%)", "expm1 requires a finite argument, but got %1%", a, pol);
+   }
    if(a > T(0.5f))
    {
       if(a >= tools::log_max_value<T>())
       {
          if(x > 0)
-            return policies::raise_overflow_error<T>("boost::math::expm1<%1%>(%1%)", 0, pol);
+            return policies::raise_overflow_error<T>("boost::math::expm1<%1%>(%1%)", nullptr, pol);
          return -1;
       }
       return exp(x) - T(1);
@@ -88,19 +128,16 @@ T expm1_imp(T x, const mpl::int_<0>&, const Policy& pol)
    if(a < tools::epsilon<T>())
       return x;
    detail::expm1_series<T> s(x);
-   boost::uintmax_t max_iter = policies::get_max_series_iterations<Policy>();
-#if !BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x582)) && !BOOST_WORKAROUND(__EDG_VERSION__, <= 245)
+   std::uintmax_t max_iter = policies::get_max_series_iterations<Policy>();
+
    T result = tools::sum_series(s, policies::get_epsilon<T, Policy>(), max_iter);
-#else
-   T zero = 0;
-   T result = tools::sum_series(s, policies::get_epsilon<T, Policy>(), max_iter, zero);
-#endif
+
    policies::check_series_iterations<T>("boost::math::expm1<%1%>(%1%)", max_iter, pol);
    return result;
 }
 
 template <class T, class P>
-T expm1_imp(T x, const mpl::int_<53>&, const P& pol)
+T expm1_imp(T x, const std::integral_constant<int, 53>&, const P& pol)
 {
    BOOST_MATH_STD_USING
 
@@ -110,7 +147,7 @@ T expm1_imp(T x, const mpl::int_<53>&, const P& pol)
       if(a >= tools::log_max_value<T>())
       {
          if(x > 0)
-            return policies::raise_overflow_error<T>("boost::math::expm1<%1%>(%1%)", 0, pol);
+            return policies::raise_overflow_error<T>("boost::math::expm1<%1%>(%1%)", nullptr, pol);
          return -1;
       }
       return exp(x) - T(1);
@@ -119,15 +156,15 @@ T expm1_imp(T x, const mpl::int_<53>&, const P& pol)
       return x;
 
    static const float Y = 0.10281276702880859e1f;
-   static const T n[] = { -0.28127670288085937e-1, 0.51278186299064534e0, -0.6310029069350198e-1, 0.11638457975729296e-1, -0.52143390687521003e-3, 0.21491399776965688e-4 };
-   static const T d[] = { 1, -0.45442309511354755e0, 0.90850389570911714e-1, -0.10088963629815502e-1, 0.63003407478692265e-3, -0.17976570003654402e-4 };
+   static const T n[] = { static_cast<T>(-0.28127670288085937e-1), static_cast<T>(0.51278186299064534e0), static_cast<T>(-0.6310029069350198e-1), static_cast<T>(0.11638457975729296e-1), static_cast<T>(-0.52143390687521003e-3), static_cast<T>(0.21491399776965688e-4) };
+   static const T d[] = { 1, static_cast<T>(-0.45442309511354755e0), static_cast<T>(0.90850389570911714e-1), static_cast<T>(-0.10088963629815502e-1), static_cast<T>(0.63003407478692265e-3), static_cast<T>(-0.17976570003654402e-4) };
 
    T result = x * Y + x * tools::evaluate_polynomial(n, x) / tools::evaluate_polynomial(d, x);
    return result;
 }
 
 template <class T, class P>
-T expm1_imp(T x, const mpl::int_<64>&, const P& pol)
+T expm1_imp(T x, const std::integral_constant<int, 64>&, const P& pol)
 {
    BOOST_MATH_STD_USING
 
@@ -137,7 +174,7 @@ T expm1_imp(T x, const mpl::int_<64>&, const P& pol)
       if(a >= tools::log_max_value<T>())
       {
          if(x > 0)
-            return policies::raise_overflow_error<T>("boost::math::expm1<%1%>(%1%)", 0, pol);
+            return policies::raise_overflow_error<T>("boost::math::expm1<%1%>(%1%)", nullptr, pol);
          return -1;
       }
       return exp(x) - T(1);
@@ -146,23 +183,23 @@ T expm1_imp(T x, const mpl::int_<64>&, const P& pol)
       return x;
 
    static const float Y = 0.10281276702880859375e1f;
-   static const T n[] = { 
-      -0.281276702880859375e-1L, 
-       0.512980290285154286358e0L, 
-       -0.667758794592881019644e-1L,
-       0.131432469658444745835e-1L,
-       -0.72303795326880286965e-3L,
-       0.447441185192951335042e-4L,
-       -0.714539134024984593011e-6L
+   static const T n[] = {
+      BOOST_MATH_BIG_CONSTANT(T, 64, -0.281276702880859375e-1),
+       BOOST_MATH_BIG_CONSTANT(T, 64, 0.512980290285154286358e0),
+       BOOST_MATH_BIG_CONSTANT(T, 64, -0.667758794592881019644e-1),
+       BOOST_MATH_BIG_CONSTANT(T, 64, 0.131432469658444745835e-1),
+       BOOST_MATH_BIG_CONSTANT(T, 64, -0.72303795326880286965e-3),
+       BOOST_MATH_BIG_CONSTANT(T, 64, 0.447441185192951335042e-4),
+       BOOST_MATH_BIG_CONSTANT(T, 64, -0.714539134024984593011e-6)
    };
-   static const T d[] = { 
-      1, 
-      -0.461477618025562520389e0L,
-      0.961237488025708540713e-1L,
-      -0.116483957658204450739e-1L,
-      0.873308008461557544458e-3L,
-      -0.387922804997682392562e-4L,
-      0.807473180049193557294e-6L
+   static const T d[] = {
+      BOOST_MATH_BIG_CONSTANT(T, 64, 1.0),
+      BOOST_MATH_BIG_CONSTANT(T, 64, -0.461477618025562520389e0),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 0.961237488025708540713e-1),
+      BOOST_MATH_BIG_CONSTANT(T, 64, -0.116483957658204450739e-1),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 0.873308008461557544458e-3),
+      BOOST_MATH_BIG_CONSTANT(T, 64, -0.387922804997682392562e-4),
+      BOOST_MATH_BIG_CONSTANT(T, 64, 0.807473180049193557294e-6)
    };
 
    T result = x * Y + x * tools::evaluate_polynomial(n, x) / tools::evaluate_polynomial(d, x);
@@ -170,7 +207,7 @@ T expm1_imp(T x, const mpl::int_<64>&, const P& pol)
 }
 
 template <class T, class P>
-T expm1_imp(T x, const mpl::int_<113>&, const P& pol)
+T expm1_imp(T x, const std::integral_constant<int, 113>&, const P& pol)
 {
    BOOST_MATH_STD_USING
 
@@ -180,7 +217,7 @@ T expm1_imp(T x, const mpl::int_<113>&, const P& pol)
       if(a >= tools::log_max_value<T>())
       {
          if(x > 0)
-            return policies::raise_overflow_error<T>("boost::math::expm1<%1%>(%1%)", 0, pol);
+            return policies::raise_overflow_error<T>("boost::math::expm1<%1%>(%1%)", nullptr, pol);
          return -1;
       }
       return exp(x) - T(1);
@@ -189,30 +226,30 @@ T expm1_imp(T x, const mpl::int_<113>&, const P& pol)
       return x;
 
    static const float Y = 0.10281276702880859375e1f;
-   static const T n[] = { 
-      -0.28127670288085937499999999999999999854e-1L,
-      0.51278156911210477556524452177540792214e0L,
-      -0.63263178520747096729500254678819588223e-1L,
-      0.14703285606874250425508446801230572252e-1L,
-      -0.8675686051689527802425310407898459386e-3L,
-      0.88126359618291165384647080266133492399e-4L,
-      -0.25963087867706310844432390015463138953e-5L,
-      0.14226691087800461778631773363204081194e-6L,
-      -0.15995603306536496772374181066765665596e-8L,
-      0.45261820069007790520447958280473183582e-10L
+   static const T n[] = {
+      BOOST_MATH_BIG_CONSTANT(T, 113, -0.28127670288085937499999999999999999854e-1),
+      BOOST_MATH_BIG_CONSTANT(T, 113, 0.51278156911210477556524452177540792214e0),
+      BOOST_MATH_BIG_CONSTANT(T, 113, -0.63263178520747096729500254678819588223e-1),
+      BOOST_MATH_BIG_CONSTANT(T, 113, 0.14703285606874250425508446801230572252e-1),
+      BOOST_MATH_BIG_CONSTANT(T, 113, -0.8675686051689527802425310407898459386e-3),
+      BOOST_MATH_BIG_CONSTANT(T, 113, 0.88126359618291165384647080266133492399e-4),
+      BOOST_MATH_BIG_CONSTANT(T, 113, -0.25963087867706310844432390015463138953e-5),
+      BOOST_MATH_BIG_CONSTANT(T, 113, 0.14226691087800461778631773363204081194e-6),
+      BOOST_MATH_BIG_CONSTANT(T, 113, -0.15995603306536496772374181066765665596e-8),
+      BOOST_MATH_BIG_CONSTANT(T, 113, 0.45261820069007790520447958280473183582e-10)
    };
-   static const T d[] = { 
-      1,
-      -0.45441264709074310514348137469214538853e0L,
-      0.96827131936192217313133611655555298106e-1L,
-      -0.12745248725908178612540554584374876219e-1L,
-      0.11473613871583259821612766907781095472e-2L,
-      -0.73704168477258911962046591907690764416e-4L,
-      0.34087499397791555759285503797256103259e-5L,
-      -0.11114024704296196166272091230695179724e-6L,
-      0.23987051614110848595909588343223896577e-8L,
-      -0.29477341859111589208776402638429026517e-10L,
-      0.13222065991022301420255904060628100924e-12L
+   static const T d[] = {
+      BOOST_MATH_BIG_CONSTANT(T, 113, 1.0),
+      BOOST_MATH_BIG_CONSTANT(T, 113, -0.45441264709074310514348137469214538853e0),
+      BOOST_MATH_BIG_CONSTANT(T, 113, 0.96827131936192217313133611655555298106e-1),
+      BOOST_MATH_BIG_CONSTANT(T, 113, -0.12745248725908178612540554584374876219e-1),
+      BOOST_MATH_BIG_CONSTANT(T, 113, 0.11473613871583259821612766907781095472e-2),
+      BOOST_MATH_BIG_CONSTANT(T, 113, -0.73704168477258911962046591907690764416e-4),
+      BOOST_MATH_BIG_CONSTANT(T, 113, 0.34087499397791555759285503797256103259e-5),
+      BOOST_MATH_BIG_CONSTANT(T, 113, -0.11114024704296196166272091230695179724e-6),
+      BOOST_MATH_BIG_CONSTANT(T, 113, 0.23987051614110848595909588343223896577e-8),
+      BOOST_MATH_BIG_CONSTANT(T, 113, -0.29477341859111589208776402638429026517e-10),
+      BOOST_MATH_BIG_CONSTANT(T, 113, 0.13222065991022301420255904060628100924e-12)
    };
 
    T result = x * Y + x * tools::evaluate_polynomial(n, x) / tools::evaluate_polynomial(d, x);
@@ -228,29 +265,20 @@ inline typename tools::promote_args<T>::type expm1(T x, const Policy& /* pol */)
    typedef typename policies::evaluation<result_type, Policy>::type value_type;
    typedef typename policies::precision<result_type, Policy>::type precision_type;
    typedef typename policies::normalise<
-      Policy, 
-      policies::promote_float<false>, 
-      policies::promote_double<false>, 
+      Policy,
+      policies::promote_float<false>,
+      policies::promote_double<false>,
       policies::discrete_quantile<>,
       policies::assert_undefined<> >::type forwarding_policy;
 
-   typedef typename mpl::if_c<
-      ::std::numeric_limits<result_type>::is_specialized == 0,
-      mpl::int_<0>,  // no numeric_limits, use generic solution
-      typename mpl::if_<
-         typename mpl::less_equal<precision_type, mpl::int_<53> >::type,
-         mpl::int_<53>,  // double
-         typename mpl::if_<
-            typename mpl::less_equal<precision_type, mpl::int_<64> >::type,
-            mpl::int_<64>, // 80-bit long double
-            typename mpl::if_<
-               typename mpl::less_equal<precision_type, mpl::int_<113> >::type,
-               mpl::int_<113>, // 128-bit long double
-               mpl::int_<0> // too many bits, use generic version.
-            >::type
-         >::type
-      >::type
-   >::type tag_type;
+   typedef std::integral_constant<int,
+      precision_type::value <= 0 ? 0 :
+      precision_type::value <= 53 ? 53 :
+      precision_type::value <= 64 ? 64 :
+      precision_type::value <= 113 ? 113 : 0
+   > tag_type;
+
+   detail::expm1_initializer<value_type, forwarding_policy, tag_type>::force_instantiate();
 
    return policies::checked_narrowing_cast<result_type, forwarding_policy>(detail::expm1_imp(
       static_cast<value_type>(x),
@@ -271,7 +299,7 @@ inline float expm1(float x, const policies::policy<>&){ return ::expm1f(x); }
 inline long double expm1(long double x, const policies::policy<>&){ return ::expm1l(x); }
 #     endif
 #  else
-inline float expm1(float x, const policies::policy<>&){ return ::expm1(x); }
+inline float expm1(float x, const policies::policy<>&){ return static_cast<float>(::expm1(x)); }
 #  endif
 inline double expm1(double x, const policies::policy<>&){ return ::expm1(x); }
 #endif
@@ -281,23 +309,6 @@ inline typename tools::promote_args<T>::type expm1(T x)
 {
    return expm1(x, policies::policy<>());
 }
-
-#if BOOST_WORKAROUND(__BORLANDC__, BOOST_TESTED_AT(0x564))
-inline float expm1(float z)
-{
-   return expm1<float>(z);
-}
-inline double expm1(double z)
-{
-   return expm1<double>(z);
-}
-#ifndef BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-inline long double expm1(long double z)
-{
-   return expm1<long double>(z);
-}
-#endif
-#endif
 
 } // namespace math
 } // namespace boost
