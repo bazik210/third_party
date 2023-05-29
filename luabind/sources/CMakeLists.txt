@@ -119,4 +119,16 @@ add_library(luabind.0.8.1 STATIC
 							"${CMAKE_CURRENT_SOURCE_DIR}/pch.h"
 )
 
+target_include_directories(luabind.0.8.1 PRIVATE
+    ${THIRDPARTY_DIR_INCLUDE_PATH}/lua
+	${THIRDPARTY_DIR_INCLUDE_PATH}
+)
+
+target_compile_definitions(luabind.0.8.1 PRIVATE
+    CS_STATIC_LIBRARIES
+	LUABIND_BUILDING
+	_SECURE_SCL=0
+	HAS_ITERATOR_DEBUGGING=0
+)
+
 set_target_properties(luabind.0.8.1 PROPERTIES FOLDER "engine/sdk")

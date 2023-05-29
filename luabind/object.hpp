@@ -554,11 +554,13 @@ namespace detail
       return boost::operator op(x, y); \
   }
 
+#if BOOST_VERSION < 105700
   LUABIND_OPERATOR_ADL_WKND(==)
   LUABIND_OPERATOR_ADL_WKND(!=)
 
 #undef LUABIND_OPERATOR_ADL_WKND
- 
+#endif
+
 } // namespace detail
 
 namespace adl
