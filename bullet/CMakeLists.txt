@@ -346,4 +346,10 @@ add_library(bullet STATIC
 					"${CMAKE_CURRENT_SOURCE_DIR}/btBulletDynamicsCommon.h"
 )
 
+
+target_include_directories(bullet PRIVATE
+    ${THIRDPARTY_DIR_INCLUDE_PATH}/bullet
+	${THIRDPARTY_DIR_INCLUDE_PATH}
+)
+
 set_target_properties(bullet PROPERTIES FOLDER "engine/sdk/bullet")
