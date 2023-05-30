@@ -127,7 +127,8 @@
 #		error you cannot specify several target platforms
 #	endif // #if CS_PLATFORM_WINDOWS_32 | CS_PLATFORM_XBOX_360 | CS_PLATFORM_XBOX_360
 #else								// #elif CS_PLATFORM_PS3
-#		error unknown target platform!
+//TODO Refactor later
+//#		error unknown target platform!
 #endif // #if CS_PLATFORM_WINDOWS_32
 
 #endif // #ifndef CS_CORE_MACRO_PLATFORM_H_INCLUDED
