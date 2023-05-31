@@ -61,6 +61,16 @@ add_library(nvimage STATIC
 						# ./
 )
 
+target_include_directories(nvimage PRIVATE
+	${THIRDPARTY_DIR_INCLUDE_PATH}/nvidia/nvt/src
+	${THIRDPARTY_DIR_INCLUDE_PATH}/nvidia/nvt/src/gnuwin32/include
+)
+target_compile_definitions(nvimage PRIVATE
+	__SSE2__
+	__SSE__
+	__MMX__
+)
+
 set_target_properties(nvimage PROPERTIES FOLDER "engine/sdk/nvidia")
 
 
@@ -99,6 +109,22 @@ add_library(nvtt SHARED
 					# ./
 )
 
+target_include_directories(nvtt PRIVATE
+	${THIRDPARTY_DIR_INCLUDE_PATH}/nvidia/nvt/src
+)
+target_compile_definitions(nvtt PRIVATE
+	NVTT_EXPORTS
+	NVTT_SHARED
+	__SSE2__
+	__SSE__
+	__MMX__
+)
+target_link_libraries(nvtt PRIVATE
+    nvcore
+	nvimage
+	squish
+)
+
 set_target_properties(nvtt PROPERTIES FOLDER "engine/sdk/nvidia")
 
 
@@ -122,6 +148,16 @@ add_library(squish STATIC
 					"${CMAKE_CURRENT_SOURCE_DIR}/../src/nvtt/squish/simd_sse.h"
 					"${CMAKE_CURRENT_SOURCE_DIR}/../src/nvtt/squish/weightedclusterfit.h"
 					# ./
+)
+
+target_include_directories(squish PRIVATE
+	${THIRDPARTY_DIR_INCLUDE_PATH}/nvidia/nvt/src
+	${THIRDPARTY_DIR_INCLUDE_PATH}/nvidia/nvt/src/gnuwin32/include
+)
+target_compile_definitions(squish PRIVATE
+	__SSE2__
+	__SSE__
+	__MMX__
 )
 
 set_target_properties(squish PROPERTIES FOLDER "engine/sdk/nvidia")
