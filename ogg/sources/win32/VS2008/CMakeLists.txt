@@ -12,4 +12,12 @@ add_library(ogg STATIC
 					# ./
 )
 
+target_include_directories(ogg PRIVATE
+	${SOLUTION_DIR_INCLUDE_PATH}
+	${THIRDPARTY_DIR_INCLUDE_PATH}
+)
+target_compile_definitions(ogg PRIVATE
+	LIBOGG_EXPORTS
+)
+
 set_target_properties(ogg PROPERTIES FOLDER "engine/sdk")
