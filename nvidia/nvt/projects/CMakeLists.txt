@@ -21,6 +21,15 @@ add_library(nvcore STATIC
 					# ./
 )
 
+target_include_directories(nvcore PRIVATE
+	${THIRDPARTY_DIR_INCLUDE_PATH}/nvidia/nvt/src
+)
+target_compile_definitions(nvcore PRIVATE
+	__SSE2__
+	__SSE__
+	__MMX__
+)
+
 set_target_properties(nvcore PROPERTIES FOLDER "engine/sdk/nvidia")
 
 
