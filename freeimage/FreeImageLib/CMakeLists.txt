@@ -120,7 +120,13 @@ target_link_directories(FreeImage PRIVATE
     ${SOLUTION_DIR_INCLUDE_PATH}/binaries
 )   
 target_link_libraries(FreeImage PRIVATE
-	
+	zlib
+	LibJPEG
+	LibPNG
+	OpenEXR
+	LibMNG
+	LibTIFF
+	LibOpenJPEG
 )
 
 set_target_properties(FreeImage PROPERTIES FOLDER "engine/sdk/freeimage")
