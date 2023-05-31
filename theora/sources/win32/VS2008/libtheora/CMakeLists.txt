@@ -65,4 +65,18 @@ add_library(theora STATIC
 					# ./
 )
 
+target_include_directories(theora PRIVATE
+	${SOLUTION_DIR_INCLUDE_PATH}
+	${THIRDPARTY_DIR_INCLUDE_PATH}
+	${THIRDPARTY_DIR_INCLUDE_PATH}/theora
+	${THIRDPARTY_DIR_INCLUDE_PATH}/theora/sources
+	${THIRDPARTY_DIR_INCLUDE_PATH}/theora/lib
+)
+target_compile_definitions(theora PRIVATE
+	_CRT_SECURE_NO_DEPRECATE
+	_CRT_NONSTDC_NO_DEPRECATE
+	_BIND_TO_CURRENT_CRT_VERSION
+	LIBTHEORA_EXPORTS
+)
+
 set_target_properties(theora PROPERTIES FOLDER "engine/sdk")
