@@ -144,4 +144,13 @@ add_library(ode STATIC
 					# ./
 )
 
+target_include_directories(ode PRIVATE
+	${SOLUTION_DIR_INCLUDE_PATH}
+	${THIRDPARTY_DIR_INCLUDE_PATH}
+)
+target_compile_options(ode PRIVATE
+	/wd4100
+	/wd4505
+)
+
 set_target_properties(ode PROPERTIES FOLDER "engine/sdk")
