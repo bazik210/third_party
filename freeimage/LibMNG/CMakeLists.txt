@@ -1,6 +1,6 @@
 project(LibMNG LANGUAGES CXX)
 
-add_library(LibMNG SHARED
+add_library(LibMNG STATIC
 					# Source Files
 					"${CMAKE_CURRENT_SOURCE_DIR}/libmng_callback_xs.c"
 					"${CMAKE_CURRENT_SOURCE_DIR}/libmng_chunk_descr.c"
