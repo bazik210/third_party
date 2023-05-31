@@ -199,4 +199,13 @@ add_library(OpenEXR STATIC
 						# ./
 )
 
+target_include_directories(OpenEXR PRIVATE
+	${THIRDPARTY_DIR_INCLUDE_PATH}/freeimage/OpenEXR
+	${THIRDPARTY_DIR_INCLUDE_PATH}/freeimage/OpenEXR/Half
+	${THIRDPARTY_DIR_INCLUDE_PATH}/freeimage/OpenEXR/Iex
+	${THIRDPARTY_DIR_INCLUDE_PATH}/freeimage/OpenEXR/IlmImf
+	${THIRDPARTY_DIR_INCLUDE_PATH}/freeimage/OpenEXR/IlmThread
+	${THIRDPARTY_DIR_INCLUDE_PATH}/freeimage/OpenEXR/Imath
+)
+
 set_target_properties(OpenEXR PROPERTIES FOLDER "engine/sdk/freeimage")
