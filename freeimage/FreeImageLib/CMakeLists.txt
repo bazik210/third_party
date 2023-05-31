@@ -101,4 +101,26 @@ add_library(FreeImage SHARED
 						#"${CMAKE_CURRENT_SOURCE_DIR}/../../Whatsnew.txt"
 )
 
+target_include_directories(FreeImage PRIVATE
+	${THIRDPARTY_DIR_INCLUDE_PATH}/freeimage
+	${THIRDPARTY_DIR_INCLUDE_PATH}/freeimage/OpenEXR
+	${THIRDPARTY_DIR_INCLUDE_PATH}/freeimage/OpenEXR/Half
+	${THIRDPARTY_DIR_INCLUDE_PATH}/freeimage/OpenEXR/Iex
+	${THIRDPARTY_DIR_INCLUDE_PATH}/freeimage/OpenEXR/IlmImf
+	${THIRDPARTY_DIR_INCLUDE_PATH}/freeimage/OpenEXR/IlmThread
+	${THIRDPARTY_DIR_INCLUDE_PATH}/freeimage/OpenEXR/Imath
+)
+#TODO check if other linker flags aren't needed
+target_compile_definitions(FreeImage PRIVATE
+    OPJ_STATIC
+    FREEIMAGE_EXPORTS
+    _CRT_SECURE_NO_DEPRECATE
+)
+target_link_directories(FreeImage PRIVATE
+    ${SOLUTION_DIR_INCLUDE_PATH}/binaries
+)   
+target_link_libraries(FreeImage PRIVATE
+	
+)
+
 set_target_properties(FreeImage PROPERTIES FOLDER "engine/sdk/freeimage")

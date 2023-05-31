@@ -28,6 +28,13 @@ add_library(zlib STATIC
 					"${CMAKE_CURRENT_SOURCE_DIR}/zutil.h"
 )
 
+target_compile_definitions(zlib PRIVATE
+    WIN32
+    WIN64=0
+    _LIB
+    _CRT_SECURE_NO_WARNINGS
+)
+
 set_target_properties(zlib PROPERTIES FOLDER "engine/sdk/common")
 
 
@@ -62,6 +69,11 @@ add_library(zlibN STATIC
 					"${CMAKE_CURRENT_SOURCE_DIR}/zlib.h"
 					"${CMAKE_CURRENT_SOURCE_DIR}/zutil.c"
 					"${CMAKE_CURRENT_SOURCE_DIR}/zutil.h"
+)
+
+target_compile_definitions(zlibN PRIVATE
+    _LIB
+    _CRT_SECURE_NO_WARNINGS
 )
 
 set_target_properties(zlibN PROPERTIES FOLDER "engine/sdk/bugtrap")

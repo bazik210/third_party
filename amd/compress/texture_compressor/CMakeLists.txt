@@ -19,4 +19,8 @@ add_library(texture_compressor SHARED
 								"${CMAKE_CURRENT_SOURCE_DIR}/entry_point.cpp"
 )
 
+target_link_directories(texture_compressor PRIVATE
+    ${SOLUTION_DIR_INCLUDE_PATH}/binaries
+)
+
 set_target_properties(texture_compressor PROPERTIES FOLDER "engine/sdk/amd")

@@ -25,4 +25,9 @@ add_library(LibPNG STATIC
 					# ./
 )
 
+target_compile_definitions(LibPNG PRIVATE
+    _LIB
+    _CRT_SECURE_NO_DEPRECATE
+)
+
 set_target_properties(LibPNG PROPERTIES FOLDER "engine/sdk/freeimage")

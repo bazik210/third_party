@@ -47,4 +47,19 @@ add_library(LibMNG SHARED
 					# ./
 )
 
+target_include_directories(LibMNG PRIVATE
+    ${THIRDPARTY_DIR_INCLUDE_PATH}/freeimage/LibJPEG
+)
+target_compile_definitions(LibMNG PRIVATE
+    _LIB
+    _CRT_SECURE_NO_DEPRECATE
+)
+target_link_directories(LibMNG PRIVATE
+    ${SOLUTION_DIR_INCLUDE_PATH}/binaries
+)
+target_link_libraries(LibMNG PRIVATE
+	LibJPEG
+	zlib
+)
+
 set_target_properties(LibMNG PROPERTIES FOLDER "engine/sdk/freeimage")

@@ -299,4 +299,14 @@ add_library(bugtrapN SHARED
 						# ./
 )
 
+target_compile_definitions(bugtrapN PRIVATE
+    _WINDOWS    
+    _USRDLL
+    BUGTRAP_EXPORT
+    _UNICODE
+)
+target_link_directories(bugtrapN PRIVATE
+    ${SOLUTION_DIR_INCLUDE_PATH}/binaries
+)
+
 set_target_properties(bugtrapN PROPERTIES FOLDER "engine/sdk/bugtrap")

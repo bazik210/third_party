@@ -65,4 +65,12 @@ add_library(LibJPEG STATIC
 						# ./
 )
 
+target_include_directories(LibJPEG PRIVATE
+    ${THIRDPARTY_DIR_INCLUDE_PATH}/zlib
+)
+target_compile_definitions(LibJPEG PRIVATE
+    _LIB
+    _CRT_SECURE_NO_DEPRECATE
+)
+
 set_target_properties(LibJPEG PROPERTIES FOLDER "engine/sdk/freeimage")

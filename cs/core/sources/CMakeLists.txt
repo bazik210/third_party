@@ -331,4 +331,10 @@ add_library(core_cs STATIC
 						"${CMAKE_CURRENT_SOURCE_DIR}/entry_point.cpp"
 )
 
+target_compile_definitions(core_cs PRIVATE
+    CS_STATIC_LIBRARIES
+    _SECURE_SCL=0
+    _HAS_ITERATOR_DEBUGGING=0
+)
+
 set_target_properties(core_cs PROPERTIES FOLDER "engine/sdk/cs")
