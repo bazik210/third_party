@@ -48,7 +48,7 @@ add_library(LibOpenJPEG STATIC
 
 target_compile_definitions(LibOpenJPEG PRIVATE
     _LIB
-    _OPJ_STATIC
+    OPJ_STATIC
     _CRT_SECURE_NO_DEPRECATE
 )
 
