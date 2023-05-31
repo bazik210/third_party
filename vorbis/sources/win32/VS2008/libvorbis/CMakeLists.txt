@@ -72,4 +72,15 @@ add_library(vorbis STATIC
 					# ./
 )
 
+#TODO Check this bizarre libogg include
+target_include_directories(vorbis PRIVATE
+	${SOLUTION_DIR_INCLUDE_PATH}
+	${THIRDPARTY_DIR_INCLUDE_PATH}
+	${THIRDPARTY_DIR_INCLUDE_PATH}/vorbis/sources/include
+	${THIRDPARTY_DIR_INCLUDE_PATH}/vorbis/libogg/include
+)
+target_compile_definitions(vorbis PRIVATE
+	LIBVORBIS_EXPORTS
+)
+
 set_target_properties(vorbis PROPERTIES FOLDER "engine/sdk/vorbis")
