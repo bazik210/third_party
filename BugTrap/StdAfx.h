@@ -102,13 +102,13 @@ struct _IMAGELIST { }; // unresolved typeref token
   #ifdef _DEBUG
    #pragma comment(lib, "zlibMSD.lib")
   #else
-   #pragma comment(lib, "zlibN.lib")
+   #pragma comment(lib, "xray_zlibN.lib")
   #endif
  #else
   #ifdef _DEBUG
    #pragma comment(lib, "zlibSD.lib")
   #else
-   #pragma comment(lib, "zlib.lib")
+   #pragma comment(lib, "xray_zlib.lib")
   #endif
  #endif
 #elif defined _M_X64
@@ -118,12 +118,12 @@ struct _IMAGELIST { }; // unresolved typeref token
 //  #else
 //   #pragma comment(lib, "zlibMS-x64.lib")
 //  #endif
-   #pragma comment(lib, "zlibN.lib")
+   #pragma comment(lib, "xray_zlibN.lib")
  #else
   #ifdef _DEBUG
    #pragma comment(lib, "zlibSD-x64.lib")
   #else
-   #pragma comment(lib, "zlib.lib")
+   #pragma comment(lib, "xray_zlib.lib")
   #endif
  #endif
 #else

@@ -279,7 +279,7 @@ inline TCHAR CStrHolder::operator[](size_t nPosition) const
  */
 inline bool operator==(const CStrHolder& rStrHolder1, const CStrHolder& rStrHolder2)
 {
-	return (_tcscmp(rStrHolder1.m_pData->m_szData, rStrHolder2.m_pData->m_szData) == 0);
+	return (_tcscmp((_TCHAR*)rStrHolder1.m_pData->m_szData, (_TCHAR*)rStrHolder2.m_pData->m_szData) == 0);
 }
 
 /**
@@ -289,7 +289,7 @@ inline bool operator==(const CStrHolder& rStrHolder1, const CStrHolder& rStrHold
  */
 inline bool operator!=(const CStrHolder& rStrHolder1, const CStrHolder& rStrHolder2)
 {
-	return (_tcscmp(rStrHolder1.m_pData->m_szData, rStrHolder2.m_pData->m_szData) != 0);
+	return (_tcscmp((_TCHAR*)rStrHolder1.m_pData->m_szData, (_TCHAR*)rStrHolder2.m_pData->m_szData) != 0);
 }
 
 /**
@@ -299,7 +299,7 @@ inline bool operator!=(const CStrHolder& rStrHolder1, const CStrHolder& rStrHold
  */
 inline bool operator<(const CStrHolder& rStrHolder1, const CStrHolder& rStrHolder2)
 {
-	return (_tcscmp(rStrHolder1.m_pData->m_szData, rStrHolder2.m_pData->m_szData) < 0);
+	return (_tcscmp((_TCHAR*)rStrHolder1.m_pData->m_szData, (_TCHAR*)rStrHolder2.m_pData->m_szData) < 0);
 }
 
 /**
@@ -309,7 +309,7 @@ inline bool operator<(const CStrHolder& rStrHolder1, const CStrHolder& rStrHolde
  */
 inline bool operator<=(const CStrHolder& rStrHolder1, const CStrHolder& rStrHolder2)
 {
-	return (_tcscmp(rStrHolder1.m_pData->m_szData, rStrHolder2.m_pData->m_szData) <= 0);
+	return (_tcscmp((_TCHAR*)rStrHolder1.m_pData->m_szData, (_TCHAR*)rStrHolder2.m_pData->m_szData) <= 0);
 }
 
 /**
@@ -319,7 +319,7 @@ inline bool operator<=(const CStrHolder& rStrHolder1, const CStrHolder& rStrHold
  */
 inline bool operator>(const CStrHolder& rStrHolder1, const CStrHolder& rStrHolder2)
 {
-	return (_tcscmp(rStrHolder1.m_pData->m_szData, rStrHolder2.m_pData->m_szData) > 0);
+	return (_tcscmp((_TCHAR*)rStrHolder1.m_pData->m_szData, (_TCHAR*)rStrHolder2.m_pData->m_szData) > 0);
 }
 
 /**
@@ -329,5 +329,5 @@ inline bool operator>(const CStrHolder& rStrHolder1, const CStrHolder& rStrHolde
  */
 inline bool operator>=(const CStrHolder& rStrHolder1, const CStrHolder& rStrHolder2)
 {
-	return (_tcscmp(rStrHolder1.m_pData->m_szData, rStrHolder2.m_pData->m_szData) >= 0);
+	return (_tcscmp((_TCHAR*)rStrHolder1.m_pData->m_szData, (_TCHAR*)rStrHolder2.m_pData->m_szData) >= 0);
 }

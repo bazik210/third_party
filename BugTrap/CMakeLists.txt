@@ -62,6 +62,7 @@ add_library(bugtrap SHARED
 						# Source Files
 						"${CMAKE_CURRENT_SOURCE_DIR}/CMapi.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/EnumProcess.cpp"
+						"${CMAKE_CURRENT_SOURCE_DIR}/InMemLogFile.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/LogFile.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/LogStream.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/ModuleImportTable.cpp"
@@ -81,8 +82,10 @@ add_library(bugtrap SHARED
 						# Header Files
 						"${CMAKE_CURRENT_SOURCE_DIR}/CMapi.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/EnumProcess.h"
+						"${CMAKE_CURRENT_SOURCE_DIR}/InMemLogFile.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/LogFile.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/LogLink.h"
+						"${CMAKE_CURRENT_SOURCE_DIR}/LogStream.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/ModuleImportTable.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/NetThunks.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/SymEngine.h"
@@ -126,8 +129,7 @@ add_library(bugtrap SHARED
 						"${CMAKE_CURRENT_SOURCE_DIR}/res/Upload.avi"
 						# Streams
 						# Source Files
-						# MISSING
-						#"${CMAKE_CURRENT_SOURCE_DIR}/ileStream.cpp"
+						"${CMAKE_CURRENT_SOURCE_DIR}/FileStream.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/InputStream.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/MemStream.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/OutputStream.cpp"
@@ -143,6 +145,31 @@ add_library(bugtrap SHARED
 						"${CMAKE_CURRENT_SOURCE_DIR}/Encoding.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/TextFormat.h"
 						# ./
+)
+
+target_include_directories(bugtrap PRIVATE
+	${SOLUTION_DIR_INCLUDE_PATH}
+	${THIRDPARTY_DIR_INCLUDE_PATH}
+)
+target_compile_definitions(bugtrap PRIVATE
+	_WINDOWS
+	_USRDLL
+	BUGTRAP_EXPORTS
+)
+target_link_libraries(bugtrap PRIVATE
+	minizip
+	zlib
+	ws2_32.lib
+	comctl32.lib
+	shlwapi.lib
+	version.lib
+	wininet.lib
+	nothrownew.obj
+	odbc32.lib
+	odbccp32.lib
+)
+target_link_directories(bugtrap PRIVATE
+    ${SOLUTION_DIR_INCLUDE_PATH}/binaries
 )
 
 set_target_properties(bugtrap PROPERTIES FOLDER "engine/sdk/bugtrap")
@@ -280,8 +307,7 @@ add_library(bugtrapN SHARED
 						"${CMAKE_CURRENT_SOURCE_DIR}/res/Upload.avi"
 						# Streams
 						# Source Files
-						# MISSING
-						#"${CMAKE_CURRENT_SOURCE_DIR}/ileStream.cpp"
+						"${CMAKE_CURRENT_SOURCE_DIR}/FileStream.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/InputStream.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/MemStream.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/OutputStream.cpp"
@@ -299,11 +325,18 @@ add_library(bugtrapN SHARED
 						# ./
 )
 
+target_include_directories(bugtrapN PRIVATE
+	${SOLUTION_DIR_INCLUDE_PATH}
+	${THIRDPARTY_DIR_INCLUDE_PATH}
+)
 target_compile_definitions(bugtrapN PRIVATE
-    _WINDOWS    
-    _USRDLL
-    BUGTRAP_EXPORT
-    _UNICODE
+	_WINDOWS
+	_USRDLL
+	BUGTRAP_EXPORTS
+)
+target_link_libraries(bugtrapN PRIVATE
+	minizipN
+	zlibN
 )
 target_link_directories(bugtrapN PRIVATE
     ${SOLUTION_DIR_INCLUDE_PATH}/binaries
