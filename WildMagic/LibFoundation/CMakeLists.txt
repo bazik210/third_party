@@ -777,4 +777,22 @@ add_library(LibFoundation STATIC
 							"${CMAKE_CURRENT_SOURCE_DIR}/Wm4FoundationPCH.h"
 )
 
+target_include_directories(LibFoundation PRIVATE
+	${THIRDPARTY_DIR_INCLUDE_PATH}/WildMagic/
+	${THIRDPARTY_DIR_INCLUDE_PATH}/WildMagic/LibFoundation
+	${THIRDPARTY_DIR_INCLUDE_PATH}/WildMagic/LibFoundation/Approximation
+	${THIRDPARTY_DIR_INCLUDE_PATH}/WildMagic/LibFoundation/ComputationalGeometry
+	${THIRDPARTY_DIR_INCLUDE_PATH}/WildMagic/LibFoundation/Containment
+	${THIRDPARTY_DIR_INCLUDE_PATH}/WildMagic/LibFoundation/Curves
+	${THIRDPARTY_DIR_INCLUDE_PATH}/WildMagic/LibFoundation/Distance
+	${THIRDPARTY_DIR_INCLUDE_PATH}/WildMagic/LibFoundation/Interpolation
+	${THIRDPARTY_DIR_INCLUDE_PATH}/WildMagic/LibFoundation/Intersection
+	${THIRDPARTY_DIR_INCLUDE_PATH}/WildMagic/LibFoundation/Mathematics
+	${THIRDPARTY_DIR_INCLUDE_PATH}/WildMagic/LibFoundation/Meshes
+	${THIRDPARTY_DIR_INCLUDE_PATH}/WildMagic/LibFoundation/Miscellaneous
+	${THIRDPARTY_DIR_INCLUDE_PATH}/WildMagic/LibFoundation/NumericalAnalysis
+	${THIRDPARTY_DIR_INCLUDE_PATH}/WildMagic/LibFoundation/Surfaces
+	${THIRDPARTY_DIR_INCLUDE_PATH}/WildMagic/LibFoundation/System
+)
+
 set_target_properties(LibFoundation PROPERTIES FOLDER "engine/sdk")
