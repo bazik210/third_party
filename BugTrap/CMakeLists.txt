@@ -1,4 +1,4 @@
-project(bugtrap LANGUAGES CXX)
+project(bugtrap LANGUAGES CXX CSharp)
 
 add_library(bugtrap SHARED
 						# Dialogs
@@ -242,6 +242,7 @@ add_library(bugtrapN SHARED
 						# Source Files
 						"${CMAKE_CURRENT_SOURCE_DIR}/CMapi.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/EnumProcess.cpp"
+						"${CMAKE_CURRENT_SOURCE_DIR}/InMemLogFile.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/LogFile.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/LogStream.cpp"
 						"${CMAKE_CURRENT_SOURCE_DIR}/ModuleImportTable.cpp"
@@ -261,8 +262,10 @@ add_library(bugtrapN SHARED
 						# Header Files
 						"${CMAKE_CURRENT_SOURCE_DIR}/CMapi.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/EnumProcess.h"
+						"${CMAKE_CURRENT_SOURCE_DIR}/InMemLogFile.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/LogFile.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/LogLink.h"
+						"${CMAKE_CURRENT_SOURCE_DIR}/LogStream.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/ModuleImportTable.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/NetThunks.h"
 						"${CMAKE_CURRENT_SOURCE_DIR}/SymEngine.h"
@@ -333,13 +336,30 @@ target_compile_definitions(bugtrapN PRIVATE
 	_WINDOWS
 	_USRDLL
 	BUGTRAP_EXPORTS
+	_UNICODE
+	UNICODE
 )
 target_link_libraries(bugtrapN PRIVATE
 	minizipN
 	zlibN
+	ws2_32.lib
+	comctl32.lib
+	shlwapi.lib
+	version.lib
+	wininet.lib
+	nothrownew.obj
+	odbc32.lib
+	odbccp32.lib
 )
 target_link_directories(bugtrapN PRIVATE
     ${SOLUTION_DIR_INCLUDE_PATH}/binaries
+)
+target_compile_options(bugtrapN PRIVATE
+    /AI\"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}\"
+)
+set_target_properties(bugtrapN PROPERTIES DOTNET_TARGET_FRAMEWORK_VERSION "v4.8")
+set_target_properties(bugtrapN PROPERTIES VS_DOTNET_REFERENCES
+        "System;System.Windows.Forms"
 )
 
 set_target_properties(bugtrapN PROPERTIES FOLDER "engine/sdk/bugtrap")
