@@ -19,6 +19,17 @@ add_library(texture_compressor SHARED
 								"${CMAKE_CURRENT_SOURCE_DIR}/entry_point.cpp"
 )
 
+target_include_directories(texture_compressor PRIVATE
+	${SOLUTION_DIR_INCLUDE_PATH}
+	${THIRDPARTY_DIR_INCLUDE_PATH}
+)
+target_link_libraries(texture_compressor PRIVATE
+	FreeImage
+	nvtt
+	"${THIRDPARTY_DIR_INCLUDE_PATH}amd/compress/ATI_Compress_MT_DLL64.lib"
+	odbc32.lib
+	odbccp32.lib
+)
 target_link_directories(texture_compressor PRIVATE
     ${SOLUTION_DIR_INCLUDE_PATH}/binaries
 )
