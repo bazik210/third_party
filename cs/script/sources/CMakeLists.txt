@@ -44,6 +44,12 @@ add_library(script_cs STATIC
 						"${CMAKE_CURRENT_SOURCE_DIR}/entry_point.cpp"
 )
 
+target_link_libraries(core_cs PRIVATE
+	script_cs
+	lua.5.1.4
+	luabind.0.8.1
+)
+
 target_compile_definitions(script_cs PRIVATE
     CS_STATIC_LIBRARIES
     _SECURE_SCL=0
