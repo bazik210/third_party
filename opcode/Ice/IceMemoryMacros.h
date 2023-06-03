@@ -57,7 +57,7 @@
 		//
 		//	2) for(udword i=0;i<nb;i++)	dest[i] = value;
 		//
-#ifdef WIN32
+#ifdef PLATFORM_WIN32
 		_asm push eax
 		_asm push ecx
 		_asm push edi

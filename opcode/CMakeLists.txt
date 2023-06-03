@@ -110,8 +110,4 @@ add_library(opcode STATIC
                     "${CMAKE_CURRENT_SOURCE_DIR}/entry_point.cpp"
 )
 
-# Project settings (i.e. additional include directories, macros etc.)
-target_include_directories(opcode PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../../)
-target_include_directories(opcode PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/../stlport)
-
 set_target_properties(opcode PROPERTIES FOLDER "engine")
