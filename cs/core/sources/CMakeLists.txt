@@ -331,7 +331,7 @@ add_library(core_cs STATIC
 						"${CMAKE_CURRENT_SOURCE_DIR}/entry_point.cpp"
 )
 
-target_link_libraries(core_cs PRIVATE
+target_link_libraries(core_cs PUBLIC
 	lua.5.1.4
 	luabind.0.8.1
 )

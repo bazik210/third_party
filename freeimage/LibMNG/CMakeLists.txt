@@ -57,7 +57,7 @@ target_compile_definitions(LibMNG PRIVATE
 target_link_directories(LibMNG PRIVATE
     ${SOLUTION_DIR_INCLUDE_PATH}/binaries
 )
-target_link_libraries(LibMNG PRIVATE
+target_link_libraries(LibMNG PUBLIC
 	LibJPEG
 	zlib
 )

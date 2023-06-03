@@ -119,9 +119,7 @@ target_compile_definitions(FreeImage PRIVATE
 target_link_directories(FreeImage PRIVATE
     ${SOLUTION_DIR_INCLUDE_PATH}/binaries
 )   
-target_link_libraries(FreeImage PRIVATE
-	zlib
-	LibJPEG
+target_link_libraries(FreeImage PUBLIC
 	LibPNG
 	OpenEXR
 	LibMNG

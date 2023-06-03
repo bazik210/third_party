@@ -156,7 +156,7 @@ target_compile_definitions(bugtrap PRIVATE
 	_USRDLL
 	BUGTRAP_EXPORTS
 )
-target_link_libraries(bugtrap PRIVATE
+target_link_libraries(bugtrap PUBLIC
 	minizip
 	zlib
 	ws2_32.lib
@@ -339,7 +339,7 @@ target_compile_definitions(bugtrapN PRIVATE
 	_UNICODE
 	UNICODE
 )
-target_link_libraries(bugtrapN PRIVATE
+target_link_libraries(bugtrapN PUBLIC
 	minizipN
 	zlibN
 	ws2_32.lib
