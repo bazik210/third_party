@@ -24,7 +24,7 @@ target_include_directories(texture_compressor PRIVATE
 	${THIRDPARTY_DIR_INCLUDE_PATH}
 )
 target_link_libraries(texture_compressor PRIVATE
-	FreeImage
+	FreeImageDLL
 	nvtt
 	"${THIRDPARTY_DIR_INCLUDE_PATH}amd/compress/ATI_Compress_MT_DLL64.lib"
 	odbc32.lib
