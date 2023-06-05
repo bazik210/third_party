@@ -12,7 +12,7 @@ agreement provided at the time of installation or download, or which
 otherwise accompanies this software in either electronic or hard copy form.
 
 **************************************************************************/
-#include "pch.h"
+//#include "pch.h"
 
 #include "Kernel/SF_Debug.h"
 #include "Kernel/SF_Random.h"

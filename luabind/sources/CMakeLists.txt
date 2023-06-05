@@ -127,8 +127,7 @@ target_include_directories(luabind.0.8.1 PRIVATE
 target_compile_definitions(luabind.0.8.1 PRIVATE
     CS_STATIC_LIBRARIES
 	LUABIND_BUILDING
-	_SECURE_SCL=0
-	HAS_ITERATOR_DEBUGGING=0
+	_ITERATOR_DEBUG_LEVEL=0
 )
 
 set_target_properties(luabind.0.8.1 PROPERTIES FOLDER "engine/sdk")

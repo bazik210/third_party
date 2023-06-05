@@ -60,25 +60,24 @@ public:
     virtual ~SysAllocMalloc() {}
 
 #if defined(SF_OS_WIN32) || defined(SF_OS_WINCE) || defined(SF_OS_XBOX) || defined(SF_OS_XBOX360)
-    virtual void* Alloc(UPInt size, UPInt /*align*/)
+    virtual void* Alloc(UPInt size, UPInt align)
     {
-        //return _aligned_malloc(size, align);
+        return _aligned_malloc(size, align);
 		//return XRAY_MALLOC_IMPL( xray::memory::g_mt_allocator, size, "scaleform" );
-		return XRAY_MALLOC_IMPL( xray::debug::g_mt_allocator, size, "scaleform" );
     }
 
     virtual void  Free(void* ptr, UPInt size, UPInt align)
     {
         SF_UNUSED2(size, align);
-        //_aligned_free(ptr);
-		return XRAY_FREE_IMPL( xray::debug::g_mt_allocator, ptr );
+        _aligned_free(ptr);
+		//return XRAY_FREE_IMPL( xray::debug::g_mt_allocator, ptr );
     }
 
-    virtual void* Realloc(void* oldPtr, UPInt oldSize, UPInt newSize, UPInt /*align*/)
+    virtual void* Realloc(void* oldPtr, UPInt oldSize, UPInt newSize, UPInt align)
     {
         SF_UNUSED(oldSize);
-        //return _aligned_realloc(oldPtr, newSize, align);
-		return XRAY_REALLOC_IMPL( xray::debug::g_mt_allocator, oldPtr, newSize, "scaleform");
+        return _aligned_realloc(oldPtr, newSize, align);
+		//return XRAY_REALLOC_IMPL( xray::debug::g_mt_allocator, oldPtr, newSize, "scaleform");
     }
 #elif defined(SF_OS_PS3)
     virtual void* Alloc(UPInt size, UPInt align)

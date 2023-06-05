@@ -164,9 +164,11 @@ target_link_libraries(bugtrap PUBLIC
 	shlwapi.lib
 	version.lib
 	wininet.lib
-	nothrownew.obj
 	odbc32.lib
 	odbccp32.lib
+)
+target_link_libraries(bugtrap PRIVATE
+	nothrownew.obj
 )
 target_link_directories(bugtrap PRIVATE
     ${SOLUTION_DIR_INCLUDE_PATH}/binaries
@@ -347,9 +349,11 @@ target_link_libraries(bugtrapN PUBLIC
 	shlwapi.lib
 	version.lib
 	wininet.lib
-	nothrownew.obj
 	odbc32.lib
 	odbccp32.lib
+)
+target_link_libraries(bugtrapN PRIVATE
+	nothrownew.obj
 )
 target_link_directories(bugtrapN PRIVATE
     ${SOLUTION_DIR_INCLUDE_PATH}/binaries

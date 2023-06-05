@@ -347,7 +347,7 @@ add_library(bullet STATIC
 )
 
 
-target_include_directories(bullet PRIVATE
+target_include_directories(bullet PUBLIC
     ${THIRDPARTY_DIR_INCLUDE_PATH}/bullet
 	${THIRDPARTY_DIR_INCLUDE_PATH}
 )

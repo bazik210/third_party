@@ -50,8 +50,6 @@ target_link_libraries(script_cs PUBLIC
 
 target_compile_definitions(script_cs PRIVATE
     CS_STATIC_LIBRARIES
-    _SECURE_SCL=0
-    _HAS_ITERATOR_DEBUGGING=0
 )
 
 set_target_properties(script_cs PROPERTIES FOLDER "engine/sdk/cs")

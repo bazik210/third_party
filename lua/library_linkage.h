@@ -11,6 +11,6 @@
 
 #include <cs/library_names.h>
 
-#pragma comment(lib, CS_LIBRARY_NAME( lua.5.1.4, lib ) )
+#pragma comment(lib, "xray_lua.5.1.4.lib" )
 
 #endif // #ifndef LUA_LIBRARY_LINKAGE_H_INCLUDED

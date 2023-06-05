@@ -12,7 +12,7 @@ agreement provided at the time of installation or download, or which
 otherwise accompanies this software in either electronic or hard copy form.
 
 **************************************************************************/
-#include "pch.h"
+//#include "pch.h"
 
 #include "Render/D3D1x/D3D1x_Shader.h"
 #include "Render/D3D1x/D3D1x_HAL.h"
