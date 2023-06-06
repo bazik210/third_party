@@ -54,12 +54,17 @@ inline u32 shared_string::size										() const
 	return		length();
 }
 
-inline shared_string::operator shared_string::unspecified_bool_type	() const
+// Deprecated: https://en.cppreference.com/w/cpp/io/basic_ios/operator_bool
+// inline shared_string::operator shared_string::unspecified_bool_type	() const
+// {
+// 	if (!m_pointer)
+// 		return	0;
+// 
+// 	return		&shared_string::c_str;
+// }
+inline shared_string::operator bool() const
 {
-	if (!m_pointer)
-		return	0;
-
-	return		&shared_string::c_str;
+	return		!m_pointer ? false : true;
 }
 
 inline bool	shared_string::operator<								(shared_string const& string) const

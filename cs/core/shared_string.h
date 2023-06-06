@@ -31,8 +31,10 @@ public:
 	inline	bool		operator<						(shared_string const& string) const;
 	inline	bool		operator==						(shared_string const& string) const;
 	inline	bool		operator!=						(shared_string const& string) const;
-	inline				operator unspecified_bool_type	() const;
-	inline	u32 	length							() const;
+	// Deprecated: https://en.cppreference.com/w/cpp/io/basic_ios/operator_bool
+	//inline				operator unspecified_bool_type	() const;
+	inline explicit     operator bool                   () const;
+	inline	u32 		length							() const;
 	inline	u32			size							() const;
 };
 
