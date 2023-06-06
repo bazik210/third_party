@@ -22,7 +22,9 @@ otherwise accompanies this software in either electronic or hard copy form.
 #ifdef SF_ENABLE_LIBPNG
 
 #ifdef SF_OS_WIN32
-#include "../3rdParty/libpng/png.h"
+//#include "../3rdParty/libpng/png.h"
+// TODO Check if this has to be linked as C as well
+#include <png.h>
 
 #else
 #include <png.h>

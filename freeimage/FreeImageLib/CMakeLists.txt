@@ -112,8 +112,8 @@ target_include_directories(FreeImage PRIVATE
 )
 #TODO check if other linker flags aren't needed
 target_compile_definitions(FreeImage PRIVATE
+	FREEIMAGE_LIB
     OPJ_STATIC
-    FREEIMAGE_EXPORTS
     _CRT_SECURE_NO_DEPRECATE
 )
 target_link_directories(FreeImage PRIVATE

@@ -34,7 +34,8 @@ otherwise accompanies this software in either electronic or hard copy form.
 
 #if defined(SF_OS_WIN32) || defined(SF_OS_XBOX360) || defined(SF_OS_XBOX)
    #if !defined(SF_CPP_LIBJPEG)
-       #define SF_CPP_LIBJPEG
+// Our version of LibJPEG compiles as C and requires C linking. If it links as C++, Scaleform will throw linker errors with various crap with unresolved symbols (C++ has mangled function names).
+//       #define SF_CPP_LIBJPEG
    #endif  
 #endif
 

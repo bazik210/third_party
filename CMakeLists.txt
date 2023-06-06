@@ -15,6 +15,7 @@ add_subdirectory(ode)
 add_subdirectory(ogg)
 add_subdirectory(opcode)
 add_subdirectory(theora)
+add_subdirectory(scaleform)
 
 # C# project directories
 add_subdirectory(WeifenLuo.WinFormsUI.Docking)
