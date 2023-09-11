@@ -262,8 +262,10 @@ target_link_libraries(FreeImageDLL PUBLIC
 
 set_target_properties(FreeImageDLL PROPERTIES FOLDER "engine/sdk/freeimage")
 
-set_target_properties(FreeImageDLL PROPERTIES DOTNET_TARGET_FRAMEWORK_VERSION "v4.0")
+# seems not needed, give problems with engine
 
-set_target_properties(FreeImageDLL PROPERTIES VS_GLOBAL_CLRSupport "true")
+#set_target_properties(FreeImageDLL PROPERTIES DOTNET_TARGET_FRAMEWORK_VERSION "v4.0")
 
-set_target_properties(FreeImageDLL PROPERTIES COMMON_LANGUAGE_RUNTIME "")
+#set_target_properties(FreeImageDLL PROPERTIES VS_GLOBAL_CLRSupport "true")
+
+#set_target_properties(FreeImageDLL PROPERTIES COMMON_LANGUAGE_RUNTIME "")

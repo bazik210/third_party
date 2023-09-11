@@ -44,10 +44,12 @@ target_link_directories(texture_compressor PRIVATE
     ${SOLUTION_DIR_INCLUDE_PATH}/binaries
 )
 
-set_target_properties(texture_compressor PROPERTIES DOTNET_TARGET_FRAMEWORK_VERSION "v4.0")
+# seems not needed, give problems with engine
 
-set_target_properties(texture_compressor PROPERTIES VS_GLOBAL_CLRSupport "true")
+#set_target_properties(texture_compressor PROPERTIES DOTNET_TARGET_FRAMEWORK_VERSION "v4.0")
 
-set_target_properties(texture_compressor PROPERTIES COMMON_LANGUAGE_RUNTIME "")
+#set_target_properties(texture_compressor PROPERTIES VS_GLOBAL_CLRSupport "true")
+
+#set_target_properties(texture_compressor PROPERTIES COMMON_LANGUAGE_RUNTIME "")
 
 set_target_properties(texture_compressor PROPERTIES FOLDER "engine/sdk/amd")
