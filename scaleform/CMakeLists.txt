@@ -379,9 +379,16 @@ target_link_libraries(scaleform PUBLIC
 	libgfxsound_fmod.lib
 )
 
+if(x64)
 target_link_directories(scaleform PUBLIC
 	${THIRDPARTY_DIR_INCLUDE_PATH}/scaleform/Lib/x64/Msvc90/Debug
 	${DXSDK_DIR_PATH}/Lib/x64
 )
+else()
+target_link_directories(scaleform PUBLIC
+	${THIRDPARTY_DIR_INCLUDE_PATH}/scaleform/Lib/Win32/Msvc90/Debug
+	${DXSDK_DIR_PATH}/Lib/x86
+)
+endif()
 
 set_target_properties(scaleform PROPERTIES FOLDER "engine")

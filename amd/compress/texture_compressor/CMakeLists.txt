@@ -23,6 +23,7 @@ target_include_directories(texture_compressor PRIVATE
 	${SOLUTION_DIR_INCLUDE_PATH}
 	${THIRDPARTY_DIR_INCLUDE_PATH}
 )
+if(x64)
 target_link_libraries(texture_compressor PRIVATE
 	FreeImageDLL
 	nvtt
@@ -30,6 +31,15 @@ target_link_libraries(texture_compressor PRIVATE
 	odbc32.lib
 	odbccp32.lib
 )
+else()
+target_link_libraries(texture_compressor PRIVATE
+	FreeImageDLL
+	nvtt
+	"${THIRDPARTY_DIR_INCLUDE_PATH}amd/compress/ATI_Compress_MT_DLL32.lib"
+	odbc32.lib
+	odbccp32.lib
+)
+endif()
 target_link_directories(texture_compressor PRIVATE
     ${SOLUTION_DIR_INCLUDE_PATH}/binaries
 )
