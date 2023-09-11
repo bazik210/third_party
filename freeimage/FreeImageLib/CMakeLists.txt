@@ -244,6 +244,7 @@ target_include_directories(FreeImageDLL PRIVATE
 )
 #TODO check if other linker flags aren't needed
 target_compile_definitions(FreeImageDLL PRIVATE
+    DEBUG
     OPJ_STATIC
     FREEIMAGE_EXPORTS
     _CRT_SECURE_NO_DEPRECATE
@@ -261,3 +262,8 @@ target_link_libraries(FreeImageDLL PUBLIC
 
 set_target_properties(FreeImageDLL PROPERTIES FOLDER "engine/sdk/freeimage")
 
+set_target_properties(FreeImageDLL PROPERTIES DOTNET_TARGET_FRAMEWORK_VERSION "v4.0")
+
+set_target_properties(FreeImageDLL PROPERTIES VS_GLOBAL_CLRSupport "true")
+
+set_target_properties(FreeImageDLL PROPERTIES COMMON_LANGUAGE_RUNTIME "")

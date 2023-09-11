@@ -290,3 +290,8 @@ csharp_set_designer_cs_properties(
 	"${CMAKE_CURRENT_SOURCE_DIR}/Properties/Resources.Designer.cs"
 	"${CMAKE_CURRENT_SOURCE_DIR}/Properties/Settings.Designer.cs"
 )
+
+# add_custom_command(TARGET WPFToolkit.Extended
+#                    PRE_BUILD 
+#                    COMMAND erase /Q "$(TargetDir)WPFToolkit.Extended.dll"
+# )
