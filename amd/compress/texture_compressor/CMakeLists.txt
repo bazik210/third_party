@@ -23,7 +23,7 @@ target_include_directories(texture_compressor PRIVATE
 	${SOLUTION_DIR_INCLUDE_PATH}
 	${THIRDPARTY_DIR_INCLUDE_PATH}
 )
-if(x64)
+if("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "x64")
 target_link_libraries(texture_compressor PRIVATE
 	FreeImageDLL
 	nvtt
