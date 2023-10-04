@@ -13,7 +13,6 @@ subject to the following restrictions:
 3. This notice may not be removed or altered from any source distribution.
 */
 
-
 #ifndef BT_KINEMATIC_CHARACTER_CONTROLLER_H
 #define BT_KINEMATIC_CHARACTER_CONTROLLER_H
 
@@ -23,8 +22,8 @@ subject to the following restrictions:
 
 #include "BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h"
 
-
 class btCollisionShape;
+class btConvexShape;
 class btRigidBody;
 class btCollisionWorld;
 class btCollisionDispatcher;
@@ -33,26 +32,27 @@ class btPairCachingGhostObject;
 ///btKinematicCharacterController is an object that supports a sliding motion in a world.
 ///It uses a ghost object and convex sweep test to test for upcoming collisions. This is combined with discrete collision detection to recover from penetrations.
 ///Interaction between btKinematicCharacterController and dynamic rigid bodies needs to be explicity implemented by the user.
-class btKinematicCharacterController : public btCharacterControllerInterface
+ATTRIBUTE_ALIGNED16(class)
+btKinematicCharacterController : public btCharacterControllerInterface
 {
 protected:
-
 	btScalar m_halfHeight;
-	
+
 	btPairCachingGhostObject* m_ghostObject;
-	btConvexShape*	m_convexShape;//is also in m_ghostObject, but it needs to be convex, so we store it here to avoid upcast
-	
+	btConvexShape* m_convexShape;  //is also in m_ghostObject, but it needs to be convex, so we store it here to avoid upcast
+
+	btScalar m_maxPenetrationDepth;
 	btScalar m_verticalVelocity;
 	btScalar m_verticalOffset;
 	btScalar m_fallSpeed;
 	btScalar m_jumpSpeed;
 	btScalar m_maxJumpHeight;
-	btScalar m_maxSlopeRadians; // Slope angle that is set (used for returning the exact value)
-	btScalar m_maxSlopeCosine;  // Cosine equivalent of m_maxSlopeRadians (calculated once when set, for optimization)
+	btScalar m_maxSlopeRadians;  // Slope angle that is set (used for returning the exact value)
+	btScalar m_maxSlopeCosine;   // Cosine equivalent of m_maxSlopeRadians (calculated once when set, for optimization)
 	btScalar m_gravity;
 
 	btScalar m_turnAngle;
-	
+
 	btScalar m_stepHeight;
 
 	btScalar	m_addedMargin;//@todo: remove this and fix the code
@@ -60,17 +60,24 @@ protected:
 	///this is the desired walk direction, set by the user
 	btVector3	m_walkDirection;
 	btVector3	m_normalizedDirection;
+	btVector3 m_AngVel;
 
 	//some internal variables
 	btVector3 m_currentPosition;
-	btScalar  m_currentStepOffset;
+	btScalar m_currentStepOffset;
 	btVector3 m_targetPosition;
 
+	btQuaternion m_currentOrientation;
+	btQuaternion m_targetOrientation;
+
 	///keep track of the contact manifolds
-	btManifoldArray	m_manifoldArray;
+	btManifoldArray m_manifoldArray;
 
 	bool m_touchingContact;
 	btVector3 m_touchingNormal;
+
+	btScalar m_linearDamping;
+	btScalar m_angularDamping;
 
 	bool  m_wasOnGround;
 	bool  m_wasJumping;
@@ -78,32 +85,40 @@ protected:
 	bool	m_useWalkDirection;
 	btScalar	m_velocityTimeInterval;
 	int m_upAxis;
+	btVector3 m_jumpAxis;
 
 	static btVector3* getUpAxisDirections();
+	
+	bool full_drop;
+	btVector3 computeReflectionDirection(const btVector3& direction, const btVector3& normal);
+	btVector3 parallelComponent(const btVector3& direction, const btVector3& normal);
+	btVector3 perpindicularComponent(const btVector3& direction, const btVector3& normal);
 
-	btVector3 computeReflectionDirection (const btVector3& direction, const btVector3& normal);
-	btVector3 parallelComponent (const btVector3& direction, const btVector3& normal);
-	btVector3 perpindicularComponent (const btVector3& direction, const btVector3& normal);
 
 	bool recoverFromPenetration ( btCollisionWorld* collisionWorld);
 	void stepUp (btCollisionWorld* collisionWorld);
 	void updateTargetPositionBasedOnCollision (const btVector3& hit_normal, btScalar tangentMag = btScalar(0.0), btScalar normalMag = btScalar(1.0));
 	void stepForwardAndStrafe (btCollisionWorld* collisionWorld, const btVector3& walkMove);
 	void stepDown (btCollisionWorld* collisionWorld, btScalar dt);
+
+	virtual bool needsCollision(const btCollisionObject* body0, const btCollisionObject* body1);
+
 public:
+	BT_DECLARE_ALIGNED_ALLOCATOR();
+
 	btKinematicCharacterController (btPairCachingGhostObject* ghostObject,btConvexShape* convexShape,btScalar stepHeight, int upAxis = 1);
 	~btKinematicCharacterController ();
 	
 
 	///btActionInterface interface
-	virtual void updateAction( btCollisionWorld* collisionWorld,btScalar deltaTime)
+	virtual void updateAction(btCollisionWorld * collisionWorld, btScalar deltaTime)
 	{
-		preStep ( collisionWorld);
-		playerStep (collisionWorld, deltaTime);
+		preStep(collisionWorld);
+		playerStep(collisionWorld, deltaTime);
 	}
-	
+
 	///btActionInterface interface
-	void	debugDraw(btIDebugDraw* debugDrawer);
+	void debugDraw(btIDebugDraw * debugDrawer);
 
 	void setUpAxis (int axis)
 	{
@@ -119,7 +134,7 @@ public:
 	///	increment the position each simulation iteration, regardless
 	///	of dt.
 	/// This call will reset any velocity set by setVelocityForTimeInterval().
-	virtual void	setWalkDirection(const btVector3& walkDirection);
+	virtual void setWalkDirection(const btVector3& walkDirection);
 
 	/// Caller provides a velocity with which the character should move for
 	///	the given time period.  After the time period, velocity is reset
@@ -132,8 +147,9 @@ public:
 	void reset ();
 	void warp (const btVector3& origin);
 
-	void preStep (  btCollisionWorld* collisionWorld);
+	void preStep(btCollisionWorld * collisionWorld);
 	void playerStep ( btCollisionWorld* collisionWorld, btScalar dt);
+	void setStepHeight(btScalar h);
 
 	void setFallSpeed (btScalar fallSpeed);
 	void setJumpSpeed (btScalar jumpSpeed);
@@ -150,8 +166,11 @@ public:
 	void setMaxSlope(btScalar slopeRadians);
 	btScalar getMaxSlope() const;
 
+	void setMaxPenetrationDepth(btScalar d);
+	btScalar getMaxPenetrationDepth() const;
+
 	btPairCachingGhostObject* getGhostObject();
-	void	setUseGhostSweepTest(bool useGhostObjectSweepTest)
+	void setUseGhostSweepTest(bool useGhostObjectSweepTest)
 	{
 		m_useGhostObjectSweepTest = useGhostObjectSweepTest;
 	}
@@ -159,4 +178,4 @@ public:
 	bool onGround () const;
 };
 
-#endif // BT_KINEMATIC_CHARACTER_CONTROLLER_H
+#endif  // BT_KINEMATIC_CHARACTER_CONTROLLER_H
