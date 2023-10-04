@@ -133,9 +133,10 @@ btVector3 btKinematicCharacterController::perpindicularComponent(const btVector3
 
 btKinematicCharacterController::btKinematicCharacterController (btPairCachingGhostObject* ghostObject,btConvexShape* convexShape,btScalar stepHeight, int upAxis)
 {
+	m_ghostObject = ghostObject;
 	m_upAxis = upAxis;
 	m_addedMargin = 0.02;
-	m_walkDirection.setValue(0,0,0);
+	m_walkDirection.setValue(0.0, 0.0, 0.0);
 	m_useGhostObjectSweepTest = true;
 	m_ghostObject = ghostObject;
 	m_stepHeight = stepHeight;
@@ -150,11 +151,15 @@ btKinematicCharacterController::btKinematicCharacterController (btPairCachingGho
 	m_jumpSpeed = 10.0;     // ?
 	m_wasOnGround = false;
 	m_wasJumping = false;
+//	m_currentStepOffset = 0.0;
 	m_maxPenetrationDepth = 0.2;
+	m_linearDamping = btScalar(0.0);
+	m_angularDamping = btScalar(0.0);
+	setStepHeight(stepHeight);
 	setMaxSlope(btRadians(45.0));
 }
 
-btKinematicCharacterController::~btKinematicCharacterController ()
+btKinematicCharacterController::~btKinematicCharacterController()
 {
 }
 
@@ -163,8 +168,22 @@ btPairCachingGhostObject* btKinematicCharacterController::getGhostObject()
 	return m_ghostObject;
 }
 
-bool btKinematicCharacterController::recoverFromPenetration ( btCollisionWorld* collisionWorld)
+bool btKinematicCharacterController::recoverFromPenetration(btCollisionWorld* collisionWorld)
 {
+	// Here we must refresh the overlapping paircache as the penetrating movement itself or the
+	// previous recovery iteration might have used setWorldTransform and pushed us into an object
+	// that is not in the previous cache contents from the last timestep, as will happen if we
+	// are pushed into a new AABB overlap. Unhandled this means the next convex sweep gets stuck.
+	//
+	// Do this by calling the broadphase's setAabb with the moved AABB, this will update the broadphase
+	// paircache and the ghostobject's internal paircache at the same time.    /BW
+
+	btVector3 minAabb, maxAabb;
+	m_convexShape->getAabb(m_ghostObject->getWorldTransform(), minAabb, maxAabb);
+	collisionWorld->getBroadphase()->setAabb(m_ghostObject->getBroadphaseHandle(),
+											 minAabb,
+											 maxAabb,
+											 collisionWorld->getDispatcher());
 
 	bool penetration = false;
 
@@ -231,6 +250,11 @@ bool btKinematicCharacterController::recoverFromPenetration ( btCollisionWorld* 
 
 void btKinematicCharacterController::stepUp(btCollisionWorld* world)
 {
+// this will effect on jumping height
+//	btScalar stepHeight = 0.0f;
+//	if (m_verticalVelocity < 0.0)
+//		stepHeight = m_stepHeight;
+
 	// phase 1: up
 	btTransform start, end;
 	m_targetPosition = m_currentPosition + getUpAxisDirections()[m_upAxis] * (m_stepHeight + (m_verticalOffset > 0.f?m_verticalOffset:0.f));
@@ -266,7 +290,23 @@ void btKinematicCharacterController::stepUp(btCollisionWorld* world)
 		}
 		m_verticalVelocity = 0.0;
 		m_verticalOffset = 0.0;
-	} else {
+		
+		// fix penetration if we hit a ceiling for example
+		int numPenetrationLoops = 0;
+		m_touchingContact = false;
+		while (recoverFromPenetration(world))
+		{
+			numPenetrationLoops++;
+			m_touchingContact = true;
+			if (numPenetrationLoops > 4)
+			{
+				//printf("character could not recover from penetration = %d\n", numPenetrationLoops);
+				break;
+			}
+		}	
+	}
+	else
+	{
 		m_currentStepOffset = m_stepHeight;
 		m_currentPosition = m_targetPosition;
 	}
@@ -332,13 +372,13 @@ void btKinematicCharacterController::stepForwardAndStrafe(btCollisionWorld* coll
 	btScalar distance2 = (m_currentPosition - m_targetPosition).length2();
 	//	printf("distance2=%f\n",distance2);
 
-	if (m_touchingContact)
-	{
-		if (m_normalizedDirection.dot(m_touchingNormal) > btScalar(0.0))
-		{
-			updateTargetPositionBasedOnCollision (m_touchingNormal);
-		}
-	}
+//	if (m_touchingContact)
+//	{
+//		if (m_normalizedDirection.dot(m_touchingNormal) > btScalar(0.0))
+//		{
+//			updateTargetPositionBasedOnCollision (m_touchingNormal);
+//		}
+//	}
 
 	int maxIter = 10;
 
@@ -374,8 +414,8 @@ void btKinematicCharacterController::stepForwardAndStrafe(btCollisionWorld* coll
 		if (callback.hasHit() && m_ghostObject->hasContactResponse() && needsCollision(m_ghostObject, callback.m_hitCollisionObject))
 		{
 			// we moved only a fraction
-			btScalar hitDistance;
-			hitDistance = (callback.m_hitPointWorld - m_currentPosition).length();
+			//btScalar hitDistance;
+			//hitDistance = (callback.m_hitPointWorld - m_currentPosition).length();
 
 			//			m_currentPosition.setInterpolate3 (m_currentPosition, m_targetPosition, callback.m_closestHitFraction);
 
@@ -447,14 +487,18 @@ void btKinematicCharacterController::stepDown ( btCollisionWorld* collisionWorld
 		collisionWorld->convexSweepTest (m_convexShape, start, end, callback, collisionWorld->getDispatchInfo().m_allowedCcdPenetration);
 	}
 
-	if (callback.hasHit())
+	if ((m_ghostObject->hasContactResponse() && (callback.hasHit() && needsCollision(m_ghostObject, callback.m_hitCollisionObject))))
 	{
 		// we dropped a fraction of the height -> hit floor
+		   btScalar fraction = (m_currentPosition.getY() - callback.m_hitPointWorld.getY()) / 2;
+
 		m_currentPosition.setInterpolate3 (m_currentPosition, m_targetPosition, callback.m_closestHitFraction);
 		m_verticalVelocity = 0.0;
 		m_verticalOffset = 0.0;
 		m_wasJumping = false;
-	} else {
+	}
+	else
+	{
 		// we dropped the full height
 		
 		m_currentPosition = m_targetPosition;
@@ -470,8 +514,6 @@ void btKinematicCharacterController::setWalkDirection(
 		m_normalizedDirection = getNormalizedVector(m_walkDirection);
 }
 
-
-
 void btKinematicCharacterController::setVelocityForTimeInterval
 (
 const btVector3& velocity,
@@ -486,48 +528,42 @@ btScalar timeInterval
 	m_useWalkDirection = false;
 	m_walkDirection = velocity;
 	m_normalizedDirection = getNormalizedVector(m_walkDirection);
-	m_velocityTimeInterval = timeInterval;
+	m_velocityTimeInterval += timeInterval;
 }
 
-
-
-void btKinematicCharacterController::reset ()
+void btKinematicCharacterController::reset(btCollisionWorld* collisionWorld)
 {
+	m_verticalVelocity = 0.0;
+	m_verticalOffset = 0.0;
+	m_wasOnGround = false;
+	m_wasJumping = false;
+	m_walkDirection.setValue(0, 0, 0);
+	m_velocityTimeInterval = 0.0;
+
+	//clear pair cache
+	btHashedOverlappingPairCache* cache = m_ghostObject->getOverlappingPairCache();
+	while (cache->getOverlappingPairArray().size() > 0)
+	{
+		cache->removeOverlappingPair(cache->getOverlappingPairArray()[0].m_pProxy0, cache->getOverlappingPairArray()[0].m_pProxy1, collisionWorld->getDispatcher());
+	}
 }
 
-void btKinematicCharacterController::warp (const btVector3& origin)
+void btKinematicCharacterController::warp(const btVector3& origin)
 {
 	btTransform xform;
 	xform.setIdentity();
-	xform.setOrigin (origin);
-	m_ghostObject->setWorldTransform (xform);
+	xform.setOrigin(origin);
+	m_ghostObject->setWorldTransform(xform);
 }
 
-
-void btKinematicCharacterController::preStep (  btCollisionWorld* collisionWorld)
+void btKinematicCharacterController::preStep(btCollisionWorld* collisionWorld)
 {
-	
-	int numPenetrationLoops = 0;
-	m_touchingContact = false;
-	while (recoverFromPenetration (collisionWorld))
-	{
-		numPenetrationLoops++;
-		m_touchingContact = true;
-		if (numPenetrationLoops > 4)
-		{
-			//printf("character could not recover from penetration = %d\n", numPenetrationLoops);
-			break;
-		}
-	}
-
 	m_currentPosition = m_ghostObject->getWorldTransform().getOrigin();
 	m_targetPosition = m_currentPosition;
-//	printf("m_targetPosition=%f,%f,%f\n",m_targetPosition[0],m_targetPosition[1],m_targetPosition[2]);
+	//	printf("m_targetPosition=%f,%f,%f\n",m_targetPosition[0],m_targetPosition[1],m_targetPosition[2]);
 
 	
 }
-
-#include <stdio.h>
 
 void btKinematicCharacterController::playerStep (  btCollisionWorld* collisionWorld, btScalar dt)
 {
@@ -543,6 +579,17 @@ void btKinematicCharacterController::playerStep (  btCollisionWorld* collisionWo
 
 	m_wasOnGround = onGround();
 
+	//btVector3 lvel = m_walkDirection;
+	//btScalar c = 0.0f;
+
+	if (m_walkDirection.length2() > 0)
+	{
+		// apply damping
+		m_walkDirection *= btPow(btScalar(1) - m_linearDamping, dt);
+	}
+
+	m_verticalVelocity *= btPow(btScalar(1) - m_linearDamping, dt);
+
 	// Update fall velocity.
 	m_verticalVelocity -= m_gravity * dt;
 	if (m_verticalVelocity > 0.0 && m_verticalVelocity > m_jumpSpeed)
@@ -555,18 +602,22 @@ void btKinematicCharacterController::playerStep (  btCollisionWorld* collisionWo
 	}
 	m_verticalOffset = m_verticalVelocity * dt;
 
-
 	btTransform xform;
-	xform = m_ghostObject->getWorldTransform ();
+	xform = m_ghostObject->getWorldTransform();
+
+	//	printf("walkDirection(%f,%f,%f)\n",walkDirection[0],walkDirection[1],walkDirection[2]);
+	//	printf("walkSpeed=%f\n",walkSpeed);
 
 //	printf("walkDirection(%f,%f,%f)\n",walkDirection[0],walkDirection[1],walkDirection[2]);
 //	printf("walkSpeed=%f\n",walkSpeed);
 
 	stepUp (collisionWorld);
-	if (m_useWalkDirection) {
-		stepForwardAndStrafe (collisionWorld, m_walkDirection);
-	} else {
-		//printf("  time: %f", m_velocityTimeInterval);
+	if (m_useWalkDirection)
+	{
+		stepForwardAndStrafe(collisionWorld, m_walkDirection);
+	}
+	else
+	{		//printf("  time: %f", m_velocityTimeInterval);
 		// still have some time left for moving!
 		btScalar dtMoving =
 			(dt < m_velocityTimeInterval) ? dt : m_velocityTimeInterval;
@@ -584,8 +635,21 @@ void btKinematicCharacterController::playerStep (  btCollisionWorld* collisionWo
 
 	// printf("\n");
 
-	xform.setOrigin (m_currentPosition);
-	m_ghostObject->setWorldTransform (xform);
+	xform.setOrigin(m_currentPosition);
+	m_ghostObject->setWorldTransform(xform);
+
+	int numPenetrationLoops = 0;
+	m_touchingContact = false;
+	while (recoverFromPenetration(collisionWorld))
+	{
+		numPenetrationLoops++;
+		m_touchingContact = true;
+		if (numPenetrationLoops > 4)
+		{
+			//printf("character could not recover from penetration = %d\n", numPenetrationLoops);
+			break;
+		}
+	}
 }
 
 void btKinematicCharacterController::setFallSpeed(btScalar fallSpeed)
@@ -648,11 +712,25 @@ btScalar btKinematicCharacterController::getMaxSlope() const
 	return m_maxSlopeRadians;
 }
 
-bool btKinematicCharacterController::onGround () const
+void btKinematicCharacterController::setMaxPenetrationDepth(btScalar d)
+{
+	m_maxPenetrationDepth = d;
+}
+
+btScalar btKinematicCharacterController::getMaxPenetrationDepth() const
+{
+	return m_maxPenetrationDepth;
+}
+
+bool btKinematicCharacterController::onGround() const
 {
 	return m_verticalVelocity == 0.0 && m_verticalOffset == 0.0;
 }
 
+void btKinematicCharacterController::setStepHeight(btScalar h)
+{
+	m_stepHeight = h;
+}
 
 btVector3* btKinematicCharacterController::getUpAxisDirections()
 {

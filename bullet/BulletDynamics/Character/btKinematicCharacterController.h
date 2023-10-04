@@ -55,16 +55,19 @@ protected:
 
 	btScalar m_stepHeight;
 
-	btScalar	m_addedMargin;//@todo: remove this and fix the code
+	btScalar m_addedMargin;  //@todo: remove this and fix the code
 
 	///this is the desired walk direction, set by the user
-	btVector3	m_walkDirection;
-	btVector3	m_normalizedDirection;
+	btVector3 m_walkDirection;
+	btVector3 m_normalizedDirection;
 
 	//some internal variables
 	btVector3 m_currentPosition;
 	btScalar m_currentStepOffset;
 	btVector3 m_targetPosition;
+
+	btQuaternion m_currentOrientation;
+	btQuaternion m_targetOrientation;
 
 	///keep track of the contact manifolds
 	btManifoldArray m_manifoldArray;
@@ -72,26 +75,31 @@ protected:
 	bool m_touchingContact;
 	btVector3 m_touchingNormal;
 
-	bool  m_wasOnGround;
-	bool  m_wasJumping;
-	bool	m_useGhostObjectSweepTest;
-	bool	m_useWalkDirection;
-	btScalar	m_velocityTimeInterval;
+	btScalar m_linearDamping;
+	btScalar m_angularDamping;
+
+	bool m_wasOnGround;
+	bool m_wasJumping;
+	bool m_useGhostObjectSweepTest;
+	bool m_useWalkDirection;
+	btScalar m_velocityTimeInterval;
 	int m_upAxis;
+	btVector3 m_jumpAxis;
 
 	static btVector3* getUpAxisDirections();
 	
-	virtual bool needsCollision(const btCollisionObject* body0, const btCollisionObject* body1);
-
-	btVector3 computeReflectionDirection (const btVector3& direction, const btVector3& normal);
-	btVector3 parallelComponent (const btVector3& direction, const btVector3& normal);
-	btVector3 perpindicularComponent (const btVector3& direction, const btVector3& normal);
+	btVector3 computeReflectionDirection(const btVector3& direction, const btVector3& normal);
+	btVector3 parallelComponent(const btVector3& direction, const btVector3& normal);
+	btVector3 perpindicularComponent(const btVector3& direction, const btVector3& normal);
 
 	bool recoverFromPenetration ( btCollisionWorld* collisionWorld);
 	void stepUp (btCollisionWorld* collisionWorld);
 	void updateTargetPositionBasedOnCollision (const btVector3& hit_normal, btScalar tangentMag = btScalar(0.0), btScalar normalMag = btScalar(1.0));
 	void stepForwardAndStrafe (btCollisionWorld* collisionWorld, const btVector3& walkMove);
 	void stepDown (btCollisionWorld* collisionWorld, btScalar dt);
+
+	virtual bool needsCollision(const btCollisionObject* body0, const btCollisionObject* body1);
+
 public:
 	BT_DECLARE_ALIGNED_ALLOCATOR();
 
@@ -133,18 +141,20 @@ public:
 	virtual void setVelocityForTimeInterval(const btVector3& velocity,
 				btScalar timeInterval);
 
-	void reset ();
-	void warp (const btVector3& origin);
+	void reset(btCollisionWorld * collisionWorld);
+	void warp(const btVector3& origin);
 
-	void preStep (  btCollisionWorld* collisionWorld);
-	void playerStep ( btCollisionWorld* collisionWorld, btScalar dt);
+	void preStep(btCollisionWorld * collisionWorld);
+	void playerStep(btCollisionWorld * collisionWorld, btScalar dt);
+
+	void setStepHeight(btScalar h);
 
 	void setFallSpeed (btScalar fallSpeed);
 	void setJumpSpeed (btScalar jumpSpeed);
 	void setMaxJumpHeight (btScalar maxJumpHeight);
 	bool canJump () const;
 
-	void jump ();
+	void jump();
 
 	void setGravity(btScalar gravity);
 	btScalar getGravity() const;
@@ -154,13 +164,16 @@ public:
 	void setMaxSlope(btScalar slopeRadians);
 	btScalar getMaxSlope() const;
 
+	void setMaxPenetrationDepth(btScalar d);
+	btScalar getMaxPenetrationDepth() const;
+
 	btPairCachingGhostObject* getGhostObject();
 	void setUseGhostSweepTest(bool useGhostObjectSweepTest)
 	{
 		m_useGhostObjectSweepTest = useGhostObjectSweepTest;
 	}
 
-	bool onGround () const;
+	bool onGround() const;
 };
 
 #endif  // BT_KINEMATIC_CHARACTER_CONTROLLER_H
