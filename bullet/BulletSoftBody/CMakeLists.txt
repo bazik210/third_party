@@ -1,7 +1,7 @@
 
 INCLUDE_DIRECTORIES(
 ${BULLET_PHYSICS_SOURCE_DIR}/src
-	
+
 )
 
 #SUBDIRS( Solvers )
@@ -13,8 +13,16 @@ SET(BulletSoftBody_SRCS
 	btSoftBodyRigidBodyCollisionConfiguration.cpp
 	btSoftRigidCollisionAlgorithm.cpp
 	btSoftRigidDynamicsWorld.cpp
+	btSoftMultiBodyDynamicsWorld.cpp
 	btSoftSoftCollisionAlgorithm.cpp
 	btDefaultSoftBodySolver.cpp
+
+	btDeformableBackwardEulerObjective.cpp
+	btDeformableBodySolver.cpp
+	btDeformableMultiBodyConstraintSolver.cpp
+	btDeformableContactProjection.cpp
+	btDeformableMultiBodyDynamicsWorld.cpp
+	btDeformableContactConstraint.cpp
 
 )
 
@@ -26,11 +34,29 @@ SET(BulletSoftBody_HDRS
 	btSoftBodyRigidBodyCollisionConfiguration.h
 	btSoftRigidCollisionAlgorithm.h
 	btSoftRigidDynamicsWorld.h
+	btSoftMultiBodyDynamicsWorld.h
 	btSoftSoftCollisionAlgorithm.h
 	btSparseSDF.h
 
 	btSoftBodySolvers.h
 	btDefaultSoftBodySolver.h
+	
+	btCGProjection.h
+	btConjugateGradient.h
+	btDeformableGravityForce.h
+	btDeformableMassSpringForce.h
+	btDeformableCorotatedForce.h
+	btDeformableNeoHookeanForce.h
+	btDeformableLinearElasticityForce.h
+	btDeformableLagrangianForce.h
+	btPreconditioner.h
+
+	btDeformableBackwardEulerObjective.h
+	btDeformableBodySolver.h
+	btDeformableMultiBodyConstraintSolver.h
+	btDeformableContactProjection.h
+	btDeformableMultiBodyDynamicsWorld.h
+	btDeformableContactConstraint.h
 
 	btSoftBodySolverVertexBuffer.h
 )
@@ -50,7 +76,9 @@ IF (INSTALL_LIBS)
 			IF (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
 				INSTALL(TARGETS BulletSoftBody DESTINATION .)
 			ELSE (APPLE AND BUILD_SHARED_LIBS AND FRAMEWORK)
-			INSTALL(TARGETS BulletSoftBody DESTINATION lib${LIB_SUFFIX})
+			INSTALL(TARGETS BulletSoftBody RUNTIME DESTINATION bin
+							LIBRARY DESTINATION lib${LIB_SUFFIX}
+							ARCHIVE DESTINATION lib${LIB_SUFFIX})
 				INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 DESTINATION ${INCLUDE_INSTALL_DIR} FILES_MATCHING PATTERN "*.h"  PATTERN
 ".svn" EXCLUDE PATTERN "CMakeFiles" EXCLUDE)
