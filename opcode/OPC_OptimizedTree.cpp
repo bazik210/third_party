@@ -217,7 +217,7 @@ AABBCollisionTree::AABBCollisionTree(allocator_type* allocator) : mNodes(null), 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 AABBCollisionTree::~AABBCollisionTree()
 {
-	DELETEARRAY(mNodes);
+	DELETENEWARRAY(mNodes);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -241,7 +241,7 @@ bool AABBCollisionTree::Build(AABBTree* tree)
 	{
 		mNbNodes = NbNodes;
 		DELETEARRAY(mNodes);
-		mNodes = NEW_A ( AABBCollisionNode, mNbNodes );
+		mNodes = new AABBCollisionNode[mNbNodes];
 		CHECKALLOC(mNodes);
 	}
 
@@ -312,7 +312,7 @@ AABBNoLeafTree::AABBNoLeafTree(allocator_type* allocator) : mNodes(null), AABBOp
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 AABBNoLeafTree::~AABBNoLeafTree()
 {
-	DELETEARRAY(mNodes);
+	DELETENEWARRAY(mNodes);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -336,7 +336,7 @@ bool AABBNoLeafTree::Build(AABBTree* tree)
 	{
 		mNbNodes = NbTriangles-1;
 		DELETEARRAY(mNodes);
-		mNodes = NEW_A ( AABBNoLeafNode, mNbNodes );
+		mNodes = new AABBNoLeafNode[mNbNodes];
 		CHECKALLOC(mNodes);
 	}
 
@@ -594,7 +594,7 @@ bool AABBQuantizedTree::Build(AABBTree* tree)
 	// Get nodes
 	mNbNodes = NbNodes;
 	DELETEARRAY(mNodes);
-	AABBCollisionNode* Nodes = NEW_A ( AABBCollisionNode, mNbNodes );
+	AABBCollisionNode* Nodes = new AABBCollisionNode[mNbNodes];
 	CHECKALLOC(Nodes);
 
 	// Build the tree
@@ -603,7 +603,7 @@ bool AABBQuantizedTree::Build(AABBTree* tree)
 
 	// Quantize
 	{
-		mNodes = NEW_A ( AABBQuantizedNode, mNbNodes );
+		mNodes = new AABBQuantizedNode[mNbNodes];
 		CHECKALLOC(mNodes);
 
 		// Get max values
@@ -708,7 +708,7 @@ bool AABBQuantizedNoLeafTree::Build(AABBTree* tree)
 	// Get nodes
 	mNbNodes = NbTriangles-1;
 	DELETEARRAY(mNodes);
-	AABBNoLeafNode* Nodes = NEW_A ( AABBNoLeafNode, mNbNodes );
+	AABBNoLeafNode* Nodes = new AABBNoLeafNode[mNbNodes];
 	CHECKALLOC(Nodes);
 
 	// Build the tree
@@ -718,7 +718,7 @@ bool AABBQuantizedNoLeafTree::Build(AABBTree* tree)
 
 	// Quantize
 	{
-		mNodes = NEW_A ( AABBQuantizedNoLeafNode, mNbNodes );
+		mNodes = new AABBQuantizedNoLeafNode[mNbNodes];
 		CHECKALLOC(mNodes);
 
 		// Get max values

@@ -25,6 +25,8 @@
 #define DELETE( pointer )		XRAY_DELETE_IMPL(		m_allocator, pointer )
 #define DELETE_A( pointer )		XRAY_DELETE_ARRAY_IMPL(	m_allocator, pointer )
 
+#define DELETENEWARRAY(x)		if (x) { delete []x;			x = null; }		//!< Deletes an array.
+
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
