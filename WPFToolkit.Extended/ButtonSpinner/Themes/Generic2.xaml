@@ -55,10 +55,10 @@
                                             </ControlTemplate>
                                         </RepeatButton.Template>
                                         <Grid>
-                                            <chrome:ButtonChrome CornerRadius="0"
+                                            <!--chrome:ButtonChrome CornerRadius="0"
                                                                  RenderEnabled="{TemplateBinding IsEnabled}"
                                                                  RenderMouseOver="{Binding IsMouseOver, ElementName=IncreaseButton}"
-                                                                 RenderPressed="{Binding IsPressed, ElementName=IncreaseButton}"/>
+                                                                 RenderPressed="{Binding IsPressed, ElementName=IncreaseButton}"/-->
                                             <ContentControl ContentTemplate="{StaticResource IncreaseGlyph}" Margin="5,1" Focusable="False" />
                                         </Grid>
                                     </RepeatButton>
@@ -69,10 +69,10 @@
                                             </ControlTemplate>
                                         </RepeatButton.Template>
                                         <Grid>
-                                            <chrome:ButtonChrome CornerRadius="0"
+                                            <!--chrome:ButtonChrome CornerRadius="0"
                                                                  RenderEnabled="{TemplateBinding IsEnabled}"
                                                                  RenderMouseOver="{Binding IsMouseOver, ElementName=DecreaseButton}"
-                                                                 RenderPressed="{Binding IsPressed, ElementName=DecreaseButton}"/>
+                                                                 RenderPressed="{Binding IsPressed, ElementName=DecreaseButton}"/-->
                                             <ContentControl ContentTemplate="{StaticResource DecreaseGlyph}" Margin="5,1" Focusable="False" />
                                         </Grid>
                                     </RepeatButton>

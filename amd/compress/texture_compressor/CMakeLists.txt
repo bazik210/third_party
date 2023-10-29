@@ -23,6 +23,7 @@ target_include_directories(texture_compressor PRIVATE
 	${SOLUTION_DIR_INCLUDE_PATH}
 	${THIRDPARTY_DIR_INCLUDE_PATH}
 )
+if("${CMAKE_GENERATOR_PLATFORM}" STREQUAL "x64")
 target_link_libraries(texture_compressor PRIVATE
 	FreeImageDLL
 	nvtt
@@ -30,8 +31,25 @@ target_link_libraries(texture_compressor PRIVATE
 	odbc32.lib
 	odbccp32.lib
 )
+else()
+target_link_libraries(texture_compressor PRIVATE
+	FreeImageDLL
+	nvtt
+	"${THIRDPARTY_DIR_INCLUDE_PATH}amd/compress/ATI_Compress_MT_DLL32.lib"
+	odbc32.lib
+	odbccp32.lib
+)
+endif()
 target_link_directories(texture_compressor PRIVATE
     ${SOLUTION_DIR_INCLUDE_PATH}/binaries
 )
+
+# seems not needed, give problems with engine
+
+#set_target_properties(texture_compressor PROPERTIES DOTNET_TARGET_FRAMEWORK_VERSION "v4.0")
+
+#set_target_properties(texture_compressor PROPERTIES VS_GLOBAL_CLRSupport "true")
+
+#set_target_properties(texture_compressor PROPERTIES COMMON_LANGUAGE_RUNTIME "")
 
 set_target_properties(texture_compressor PROPERTIES FOLDER "engine/sdk/amd")

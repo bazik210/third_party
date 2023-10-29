@@ -8,8 +8,8 @@
     <!-- ResourceDictionary for TimePicker and related controls                          -->
     <!-- =============================================================================== -->
 
-    <coreConverters:InverseBoolConverter x:Key="InverseBoolConverter" />
-    <coreConverters:TimeFormatToDateTimeFormatConverter x:Key="TimeFormatToDateTimeFormatConverter" />
+    <!--coreConverters:InverseBoolConverter x:Key="InverseBoolConverter" /-->
+    <!--coreConverters:TimeFormatToDateTimeFormatConverter x:Key="TimeFormatToDateTimeFormatConverter" /-->
 
     <DataTemplate x:Key="DefaultWatermarkTemplate">
         <ContentControl Content="{Binding}" Foreground="Gray" Focusable="False" />
@@ -36,10 +36,10 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ToggleButton">
                     <Grid SnapsToDevicePixels="True">
-                        <chrome:ButtonChrome x:Name="ToggleButtonChrome"
+                        <!--chrome:ButtonChrome x:Name="ToggleButtonChrome"
                                              CornerRadius="0,2.75,2.75,0"
 											 RenderMouseOver="{TemplateBinding IsMouseOver}"
-											 RenderPressed="{TemplateBinding IsPressed}" />
+											 RenderPressed="{TemplateBinding IsPressed}" /-->
 
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -98,14 +98,14 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <local:DateTimeUpDown x:Name="PART_TimeUpDown" BorderThickness="1,1,0,1"  
+                                <!--local:DateTimeUpDown x:Name="PART_TimeUpDown" BorderThickness="1,1,0,1"  
                                                       AllowSpin="{TemplateBinding AllowSpin}"
                                                       Format="{TemplateBinding Format, Converter={StaticResource TimeFormatToDateTimeFormatConverter}}"
                                                       FormatString="{TemplateBinding FormatString}"
                                                       ShowButtonSpinner="{TemplateBinding ShowButtonSpinner}"
                                                       Value="{Binding Value, RelativeSource={RelativeSource TemplatedParent}}"
                                                       Watermark="{TemplateBinding Watermark}"
-                                                      WatermarkTemplate="{TemplateBinding WatermarkTemplate}"/>
+                                                      WatermarkTemplate="{TemplateBinding WatermarkTemplate}"/-->
                                 <ToggleButton x:Name="_timePickerToggleButton" Grid.Column="1"
                                               IsChecked="{Binding IsOpen, RelativeSource={RelativeSource TemplatedParent}}"
                                               Style="{StaticResource TimePickerToggleButtonStyle}"

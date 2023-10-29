@@ -38,13 +38,16 @@
 #		endif // #if CS_DEBUG_LIBRARIES
 #	else // #if BUGTRAP_LINK_STATIC
 		static	HMODULE	s_bugtrap_handle		= 0;
-#if defined( WIN64 )
-		static	pcstr	s_bugtrap_native_id		= "BugTrap-x64.dll";
-		static	pcstr	s_bugtrap_dotnet_id		= "BugTrapN-x64.dll";
-#elif defined( WIN32 )
-		static	pcstr	s_bugtrap_native_id		= "BugTrap.dll";
-		static	pcstr	s_bugtrap_dotnet_id		= "BugTrapN.dll";
-#else
+
+		static	pcstr	s_bugtrap_native_id = "xray_bugtrap.dll";
+		static	pcstr	s_bugtrap_dotnet_id = "xray_bugtrapN.dll";
+
+//#if defined( WIN64 )
+//		static	pcstr	s_bugtrap_native_id		= "BugTrap-x64.dll";
+//		static	pcstr	s_bugtrap_dotnet_id		= "BugTrapN-x64.dll";
+//#elif defined( WIN32 )
+
+#if !defined( WIN64 ) && !defined( WIN32 )
 #	error please define your platform
 #endif // #if defined( WIN32 )
 		static	bool	s_use_dot_net			= false;

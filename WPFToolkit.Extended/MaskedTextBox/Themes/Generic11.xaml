@@ -22,7 +22,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:MaskedTextBox}">
-                    <local:WatermarkTextBox x:Name="TextBox" 
+                    <!--local:WatermarkTextBoxT x:Name="TextBox" 
                                             Background="{TemplateBinding Background}"
                                             FontFamily="{TemplateBinding FontFamily}" 
                                             FontSize="{TemplateBinding FontSize}" 
@@ -36,7 +36,7 @@
                                             TabIndex="{TemplateBinding TabIndex}"
                                             Text="{Binding Text, RelativeSource={RelativeSource TemplatedParent}}"
                                             Watermark="{TemplateBinding Watermark}"
-                                            WatermarkTemplate="{TemplateBinding WatermarkTemplate}"/>
+                                            WatermarkTemplate="{TemplateBinding WatermarkTemplate}"/!-->
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

@@ -104,11 +104,11 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ToggleButton">
                     <Grid SnapsToDevicePixels="True">
-                        <chrome:ButtonChrome x:Name="ToggleButtonChrome"
+                        <!--chrome:ButtonChrome x:Name="ToggleButtonChrome"
                                             RenderChecked="{Binding IsOpen, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:ColorPicker}}"
                                             RenderEnabled="{Binding IsEnabled, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:ColorPicker}}"
 											RenderMouseOver="{TemplateBinding IsMouseOver}"
-											RenderPressed="{TemplateBinding IsPressed}" />
+											RenderPressed="{TemplateBinding IsPressed}" /-->
 
                         <Grid>
                             <Grid.ColumnDefinitions>
