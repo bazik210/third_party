@@ -361,7 +361,7 @@ target_link_directories(bugtrapN PRIVATE
 target_compile_options(bugtrapN PRIVATE
     /AI\"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}\"
 )
-set_target_properties(bugtrapN PROPERTIES DOTNET_TARGET_FRAMEWORK_VERSION "v4.0")
+set_target_properties(bugtrapN PROPERTIES DOTNET_TARGET_FRAMEWORK_VERSION "v4.8")
 set_target_properties(bugtrapN PROPERTIES VS_DOTNET_REFERENCES
         "System;System.Windows.Forms"
 )
