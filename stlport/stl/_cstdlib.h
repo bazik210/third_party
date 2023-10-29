@@ -60,7 +60,7 @@ using _STLP_VENDOR_CSTD::size_t;
 #  ifndef _STLP_NO_CSTD_FUNCTION_IMPORTS
 #    ifndef _STLP_WCE
 // these functions just don't exist on Windows CE
-#ifdef WIN32
+#if defined WIN32 || WIN64
 using _STLP_VENDOR_CSTD::abort;
 using _STLP_VENDOR_CSTD::getenv;
 #endif // #ifdef WIN32

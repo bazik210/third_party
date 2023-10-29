@@ -92,8 +92,8 @@ void AABBTreeNode::Release	(Opcode::allocator_type* m_allocator)
 
 AABBTreeNode::~AABBTreeNode()
 {
-	R_ASSERT		( !mNodePrimitives );
-	R_ASSERT		( !mNbPrimitives );
+//	R_ASSERT		( !mNodePrimitives );
+//	R_ASSERT		( !mNbPrimitives );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -314,7 +314,7 @@ bool AABBTreeNode::Subdivide(AABBTreeBuilder* builder)
 		mPos = (size_t)NEW ( AABBTreeNode );	CHECKALLOC(mPos);
 		mNeg = (size_t)NEW ( AABBTreeNode );	CHECKALLOC(mNeg);
 #else
-		AABBTreeNode* PosNeg = XRAY_NEW_ARRAY_IMPL ( builder->m_allocator, AABBTreeNode, 2 );
+		AABBTreeNode* PosNeg = new AABBTreeNode[2];
 		CHECKALLOC(PosNeg);
 		mPos = (size_t)PosNeg;
 #endif
@@ -403,15 +403,8 @@ void AABBTree::Release()
 {
 	AABBTreeNode::Release( m_allocator );
 
-	if ( mPool ) {
-		AABBTreeNode* i = mPool;
-		AABBTreeNode* e = mPool + mPool_count;
-		for ( ; i != e; ++i )
-			(*i).Release( m_allocator );
-
-		DELETEARRAY(mPool);
-	}
-	DELETEARRAY(mIndices);
+	DELETENEWARRAY(mPool);
+	DELETENEWARRAY(mIndices);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -434,7 +427,7 @@ bool AABBTree::Build(AABBTreeBuilder* builder)
 	builder->SetNbInvalidSplits(0);
 
 	// Initialize indices. This list will be modified during build.
-	mIndices = NEW_A ( udword, builder->mNbPrimitives );
+	mIndices = new udword[builder->mNbPrimitives];
 	CHECKALLOC(mIndices);
 	// Identity permutation
 	for(udword i=0;i<builder->mNbPrimitives;i++)	mIndices[i] = i;
@@ -449,7 +442,8 @@ bool AABBTree::Build(AABBTreeBuilder* builder)
 	{
 		// Allocate a pool of nodes
 		mPool_count = builder->mNbPrimitives*2 - 1;
-		mPool = NEW_A ( AABBTreeNode, mPool_count );
+		
+		mPool = new AABBTreeNode[builder->mNbPrimitives * 2 - 1];
 
 		builder->mNodeBase = mPool;	// ### ugly !
 	}

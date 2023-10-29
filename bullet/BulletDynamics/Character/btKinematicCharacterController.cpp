@@ -137,7 +137,6 @@ btKinematicCharacterController::btKinematicCharacterController (btPairCachingGho
 	m_upAxis = upAxis;
 	m_addedMargin = 0.02;
 	m_walkDirection.setValue(0.0, 0.0, 0.0);
-	m_AngVel.setValue(0.0, 0.0, 0.0);
 	m_useGhostObjectSweepTest = true;
 	m_ghostObject = ghostObject;
 	m_stepHeight = stepHeight;
@@ -156,7 +155,7 @@ btKinematicCharacterController::btKinematicCharacterController (btPairCachingGho
 	m_maxPenetrationDepth = 0.2;
 	m_linearDamping = btScalar(0.0);
 	m_angularDamping = btScalar(0.0);
-//	setStepHeight(stepHeight);
+	setStepHeight(stepHeight);
 	setMaxSlope(btRadians(45.0));
 }
 
@@ -251,6 +250,11 @@ bool btKinematicCharacterController::recoverFromPenetration(btCollisionWorld* co
 
 void btKinematicCharacterController::stepUp(btCollisionWorld* world)
 {
+// this will effect on jumping height
+//	btScalar stepHeight = 0.0f;
+//	if (m_verticalVelocity < 0.0)
+//		stepHeight = m_stepHeight;
+
 	// phase 1: up
 	btTransform start, end;
 	m_targetPosition = m_currentPosition + getUpAxisDirections()[m_upAxis] * (m_stepHeight + (m_verticalOffset > 0.f?m_verticalOffset:0.f));
@@ -368,13 +372,13 @@ void btKinematicCharacterController::stepForwardAndStrafe(btCollisionWorld* coll
 	btScalar distance2 = (m_currentPosition - m_targetPosition).length2();
 	//	printf("distance2=%f\n",distance2);
 
-	if (m_touchingContact)
-	{
-		if (m_normalizedDirection.dot(m_touchingNormal) > btScalar(0.0))
-		{
-			updateTargetPositionBasedOnCollision (m_touchingNormal);
-		}
-	}
+//	if (m_touchingContact)
+//	{
+//		if (m_normalizedDirection.dot(m_touchingNormal) > btScalar(0.0))
+//		{
+//			updateTargetPositionBasedOnCollision (m_touchingNormal);
+//		}
+//	}
 
 	int maxIter = 10;
 
@@ -410,8 +414,8 @@ void btKinematicCharacterController::stepForwardAndStrafe(btCollisionWorld* coll
 		if (callback.hasHit() && m_ghostObject->hasContactResponse() && needsCollision(m_ghostObject, callback.m_hitCollisionObject))
 		{
 			// we moved only a fraction
-			btScalar hitDistance;
-			hitDistance = (callback.m_hitPointWorld - m_currentPosition).length();
+			//btScalar hitDistance;
+			//hitDistance = (callback.m_hitPointWorld - m_currentPosition).length();
 
 			//			m_currentPosition.setInterpolate3 (m_currentPosition, m_targetPosition, callback.m_closestHitFraction);
 
@@ -486,7 +490,7 @@ void btKinematicCharacterController::stepDown ( btCollisionWorld* collisionWorld
 	if ((m_ghostObject->hasContactResponse() && (callback.hasHit() && needsCollision(m_ghostObject, callback.m_hitCollisionObject))))
 	{
 		// we dropped a fraction of the height -> hit floor
-		// btScalar fraction = (m_currentPosition.getY() - callback.m_hitPointWorld.getY()) / 2;
+		   btScalar fraction = (m_currentPosition.getY() - callback.m_hitPointWorld.getY()) / 2;
 
 		m_currentPosition.setInterpolate3 (m_currentPosition, m_targetPosition, callback.m_closestHitFraction);
 		m_verticalVelocity = 0.0;
@@ -527,10 +531,21 @@ btScalar timeInterval
 	m_velocityTimeInterval += timeInterval;
 }
 
-
-
-void btKinematicCharacterController::reset ()
+void btKinematicCharacterController::reset(btCollisionWorld* collisionWorld)
 {
+	m_verticalVelocity = 0.0;
+	m_verticalOffset = 0.0;
+	m_wasOnGround = false;
+	m_wasJumping = false;
+	m_walkDirection.setValue(0, 0, 0);
+	m_velocityTimeInterval = 0.0;
+
+	//clear pair cache
+	btHashedOverlappingPairCache* cache = m_ghostObject->getOverlappingPairCache();
+	while (cache->getOverlappingPairArray().size() > 0)
+	{
+		cache->removeOverlappingPair(cache->getOverlappingPairArray()[0].m_pProxy0, cache->getOverlappingPairArray()[0].m_pProxy1, collisionWorld->getDispatcher());
+	}
 }
 
 void btKinematicCharacterController::warp(const btVector3& origin)
@@ -707,14 +722,14 @@ btScalar btKinematicCharacterController::getMaxPenetrationDepth() const
 	return m_maxPenetrationDepth;
 }
 
-void btKinematicCharacterController::setStepHeight(btScalar h)
-{
-	m_stepHeight = h;
-}
-
 bool btKinematicCharacterController::onGround() const
 {
 	return m_verticalVelocity == 0.0 && m_verticalOffset == 0.0;
+}
+
+void btKinematicCharacterController::setStepHeight(btScalar h)
+{
+	m_stepHeight = h;
 }
 
 btVector3* btKinematicCharacterController::getUpAxisDirections()
