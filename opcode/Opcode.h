@@ -30,7 +30,7 @@
 	// Automatic linking
 	#ifndef BAN_OPCODE_AUTOLINK
 		#include <xray/macro_library_name.h>
-		#pragma comment( lib, XRAY_LIBRARY_NAME( opcode, lib ) )
+		#pragma comment( lib, "xray_opcode.lib" )
 	#endif
 #endif
 

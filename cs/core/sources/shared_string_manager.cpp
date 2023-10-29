@@ -102,8 +102,16 @@ void shared_string_manager::collect_garbage								()
 {
 	m_mutex.lock						();
 
-	m_storage.erase						(
-		std::remove_if(
+// 	m_storage.erase						(
+// 		std::remove_if(
+// 			m_storage.begin(),
+// 			m_storage.end(),
+// 			remove_predicate()
+// 		),
+// 		m_storage.end()
+// 	);
+	m_storage.erase(
+		std::find_if(
 			m_storage.begin(),
 			m_storage.end(),
 			remove_predicate()

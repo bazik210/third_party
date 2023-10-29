@@ -11,6 +11,6 @@
 
 #include <cs/library_names.h>
 
-#pragma comment(lib, CS_LIBRARY_NAME( core, lib ) )
+#pragma comment(lib, "xray_core_cs.lib" )
 
 #endif // #ifndef CS_CORE_LIBRARY_LINKAGE_H_INCLUDED

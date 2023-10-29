@@ -11,6 +11,6 @@
 
 #include <cs/library_names.h>
 
-#pragma comment(lib, CS_LIBRARY_NAME( luabind.0.8.1, lib ) )
+#pragma comment(lib, "xray_luabind.0.8.1.lib" )
 
 #endif // #ifndef LUABIND_LIBRARY_LINKAGE_H_INCLUDED

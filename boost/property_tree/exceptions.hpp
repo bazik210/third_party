@@ -15,8 +15,8 @@
 #include <boost/property_tree/ptree_fwd.hpp>
 
 #include <boost/any.hpp>
-#include <string>
 #include <stdexcept>
+#include <string>
 
 namespace boost { namespace property_tree
 {
@@ -31,7 +31,7 @@ namespace boost { namespace property_tree
         /// @param what The message to associate with this error.
         ptree_error(const std::string &what);
 
-        ~ptree_error() throw();
+        ~ptree_error() throw() BOOST_OVERRIDE;
     };
 
 
@@ -48,11 +48,12 @@ namespace boost { namespace property_tree
         template<class T> ptree_bad_data(const std::string &what,
                                          const T &data);
 
-        ~ptree_bad_data() throw();
+        ~ptree_bad_data() throw() BOOST_OVERRIDE;
 
         /// Retrieve the data associated with this error. This is the source
-        /// value that failed to be translated.
-        template<class T> T data();
+        /// value that failed to be translated. You need to explicitly
+        /// specify its type.
+        template<class T> T data() const;
     private:
         boost::any m_data;
     };
@@ -69,10 +70,11 @@ namespace boost { namespace property_tree
         template<class T> ptree_bad_path(const std::string &what,
                                          const T &path);
 
-        ~ptree_bad_path() throw();
+        ~ptree_bad_path() throw() BOOST_OVERRIDE;
 
-        /// Retrieve the invalid path.
-        template<class T> T path();
+        /// Retrieve the invalid path. You need to explicitly specify the
+        /// type of path.
+        template<class T> T path() const;
     private:
         boost::any m_path;
     };

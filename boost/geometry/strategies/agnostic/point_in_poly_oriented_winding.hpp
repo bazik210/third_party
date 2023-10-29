@@ -1,6 +1,6 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2011 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2011-2012 Barend Gehrels, Amsterdam, the Netherlands.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -36,8 +36,6 @@ namespace strategy { namespace within
 \tparam PointOfSegment \tparam_segment_point
 \tparam CalculationType \tparam_calculation
 \author Barend Gehrels
-\note The implementation is inspired by terralib http://www.terralib.org (LGPL)
-\note but totally revised afterwards, especially for cases on segments
 \note Only dependant on "side", -> agnostic, suitable for spherical/latlong
 
 \qbk{

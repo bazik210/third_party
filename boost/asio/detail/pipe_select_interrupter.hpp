@@ -2,7 +2,7 @@
 // detail/pipe_select_interrupter.hpp
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
-// Copyright (c) 2003-2011 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+// Copyright (c) 2003-2023 Christopher M. Kohlhoff (chris at kohlhoff dot com)
 //
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -17,7 +17,8 @@
 
 #include <boost/asio/detail/config.hpp>
 
-#if !defined(BOOST_WINDOWS)
+#if !defined(BOOST_ASIO_WINDOWS)
+#if !defined(BOOST_ASIO_WINDOWS_RUNTIME)
 #if !defined(__CYGWIN__)
 #if !defined(__SYMBIAN32__)
 #if !defined(BOOST_ASIO_HAS_EVENTFD)
@@ -43,7 +44,7 @@ public:
   // Interrupt the select call.
   BOOST_ASIO_DECL void interrupt();
 
-  // Reset the select interrupt. Returns true if the call was interrupted.
+  // Reset the select interrupter. Returns true if the reset was successful.
   BOOST_ASIO_DECL bool reset();
 
   // Get the read descriptor to be passed to select.
@@ -84,6 +85,7 @@ private:
 #endif // !defined(BOOST_ASIO_HAS_EVENTFD)
 #endif // !defined(__SYMBIAN32__)
 #endif // !defined(__CYGWIN__)
-#endif // !defined(BOOST_WINDOWS)
+#endif // !defined(BOOST_ASIO_WINDOWS_RUNTIME)
+#endif // !defined(BOOST_ASIO_WINDOWS)
 
 #endif // BOOST_ASIO_DETAIL_PIPE_SELECT_INTERRUPTER_HPP

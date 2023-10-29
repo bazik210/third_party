@@ -1,31 +1,20 @@
-//////////////////////////////////////////////////////////////////////////////
+//=====================================================================
+// Copyright (c) 2007-2011 Advanced Micro Devices, Inc. All rights reserved.
+// Copyright (c) 2004-2006 ATI Technologies Inc.
 //
-//  Advanced Micro Devices, Inc.
-//  1 AMD Place
-//  Sunnyvale, CA
-//  USA 94088
+/// \author GPU Developer Tools
+/// \author gputools.support@amd.com
+/// \file ATI_Compress.h
+/// \version 1.80
+/// \brief Declares the interface to the ATI_Compress library.
 //
-//  File Name:   ATI_Compress.h
-//  Description: A library to compress/decompress textures
-//
-//  Copyright (c) 2007,2008 Advanced Micro Devices, Inc.
-//  Copyright (c) 2004-2006 ATI Technologies Inc.
-//
-//  Version:	1.7
-//
-//  Developer:	Seth Sowerby	
-//  Email:		gputools.support@amd.com
-//
-//////////////////////////////////////////////////////////////////////////////
-
-/// \file
-/// ATI_Compress.h declares the interface to the ATI_Compress library.
+//=====================================================================
 
 #ifndef ATI_COMPRESS
 #define ATI_COMPRESS
 
 #define ATI_COMPRESS_VERSION_MAJOR 1         ///< The major version number of this release.
-#define ATI_COMPRESS_VERSION_MINOR 7         ///< The minor version number of this release.
+#define ATI_COMPRESS_VERSION_MINOR 80        ///< The minor version number of this release.
 
 typedef unsigned long ATI_TC_DWORD;          ///< A 32-bit integer format.
 typedef unsigned short ATI_TC_WORD;          ///< A 16-bit integer format.
@@ -34,7 +23,7 @@ typedef unsigned char ATI_TC_BYTE;           ///< An 8-bit integer format.
 #if defined(WIN32) || defined(_WIN64)
 #   define ATI_TC_API __cdecl
 #else
-#   define ATI_TC_API 
+#   define ATI_TC_API
 #endif
 
 #ifdef ATI_COMPRESS_INTERNAL_BUILD
@@ -78,8 +67,8 @@ typedef enum
    ATI_TC_FORMAT_BC4,                        ///< A single component compressed texture format for Microsoft DirectX10. Identical to ATI1N. Four bits per pixel.
    ATI_TC_FORMAT_BC5,                        ///< A two component compressed texture format for Microsoft DirectX10. Identical to ATI2N. Eight bits per pixel.
    ATI_TC_FORMAT_ATC_RGB,                    ///< ATI_TC - a compressed RGB format for cellphones & hand-held devices.
-   ATI_TC_FORMAT_ATC_RGBA_Explicit,          ///< ATI_TC - a compressed ARGB format with explicit alpha for cellphones & hand-held devices.  
-   ATI_TC_FORMAT_ATC_RGBA_Interpolated,      ///< ATI_TC - a compressed ARGB format with interpolated alpha for cellphones & hand-held devices. 
+   ATI_TC_FORMAT_ATC_RGBA_Explicit,          ///< ATI_TC - a compressed ARGB format with explicit alpha for cellphones & hand-held devices.
+   ATI_TC_FORMAT_ATC_RGBA_Interpolated,      ///< ATI_TC - a compressed ARGB format with interpolated alpha for cellphones & hand-held devices.
    ATI_TC_FORMAT_ETC_RGB,                    ///< ETC (aka Ericsson Texture Compression) - a compressed RGB format for cellphones.
    ATI_TC_FORMAT_MAX = ATI_TC_FORMAT_ETC_RGB
 } ATI_TC_FORMAT;
@@ -111,14 +100,14 @@ typedef enum
 typedef struct
 {
    ATI_TC_DWORD	dwSize;					      ///< The size of this structure.
-   BOOL			   bUseChannelWeighting;      ///< Use channel weightings. With swizzled formats the weighting applies to the data within the specified channel not the channel itself.
+   bool			   bUseChannelWeighting;      ///< Use channel weightings. With swizzled formats the weighting applies to the data within the specified channel not the channel itself.
    double			fWeightingRed;			      ///< The weighting of the Red or X Channel.
    double			fWeightingGreen;		      ///< The weighting of the Green or Y Channel.
    double			fWeightingBlue;		      ///< The weighting of the Blue or Z Channel.
-   BOOL			   bUseAdaptiveWeighting;     ///< Adapt weighting on a per-block basis.
-   BOOL			   bDXT1UseAlpha;             ///< Encode single-bit alpha data. Only valid when compressing to DXT1 & BC1.
+   bool			   bUseAdaptiveWeighting;     ///< Adapt weighting on a per-block basis.
+   bool			   bDXT1UseAlpha;             ///< Encode single-bit alpha data. Only valid when compressing to DXT1 & BC1.
    ATI_TC_BYTE		nAlphaThreshold;           ///< The alpha threshold to use when compressing to DXT1 & BC1 with bDXT1UseAlpha. Texels with an alpha value less than the threshold are treated as transparent.
-   BOOL			   bDisableMultiThreading;    ///< Disable multi-threading of the compression. This will slow the compression but can be useful if you're managing threads in your application.
+   bool			   bDisableMultiThreading;    ///< Disable multi-threading of the compression. This will slow the compression but can be useful if you're managing threads in your application.
    ATI_TC_Speed   nCompressionSpeed;         ///< The trade-off between compression speed & quality.
 } ATI_TC_CompressOptions;
 #endif // !ATI_COMPRESS_INTERNAL_BUILD
@@ -148,7 +137,7 @@ extern "C" {
    /// \param[in] pUser1 User data as passed to ATI_TC_ConvertTexture.
    /// \param[in] pUser2 User data as passed to ATI_TC_ConvertTexture.
    /// \return non-NULL(true) value to abort conversion
-   typedef bool (ATI_TC_API * ATI_TC_Feedback_Proc)(float fProgress, DWORD_PTR pUser1, DWORD_PTR pUser2);
+	typedef bool (ATI_TC_API * ATI_TC_Feedback_Proc)(float fProgress, ATI_TC_DWORD pUser1, ATI_TC_DWORD pUser2);
 
    /// Calculates the required buffer size for the specified texture
    /// \param[in] pTexture A pointer to the texture.
@@ -164,9 +153,9 @@ extern "C" {
    /// \param[in] pUser1 User data to pass to the feedback function.
    /// \param[in] pUser2 User data to pass to the feedback function.
    /// \return    ATI_TC_OK if successful, otherwise the error code.
-   ATI_TC_ERROR ATI_TC_API ATI_TC_ConvertTexture(const ATI_TC_Texture* pSourceTexture, ATI_TC_Texture* pDestTexture, 
-                                                 const ATI_TC_CompressOptions* pOptions, 
-                                                 ATI_TC_Feedback_Proc pFeedbackProc, DWORD_PTR pUser1, DWORD_PTR pUser2);
+   ATI_TC_ERROR ATI_TC_API ATI_TC_ConvertTexture(const ATI_TC_Texture* pSourceTexture, ATI_TC_Texture* pDestTexture,
+                                                 const ATI_TC_CompressOptions* pOptions,
+                                                 ATI_TC_Feedback_Proc pFeedbackProc, ATI_TC_DWORD pUser1, ATI_TC_DWORD pUser2);
 
 #ifdef __cplusplus
 };

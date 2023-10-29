@@ -1,0 +1,2 @@
+add_subdirectory(libvorbis)
+add_subdirectory(libvorbisfile)

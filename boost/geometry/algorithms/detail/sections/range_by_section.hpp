@@ -1,11 +1,15 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2011 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
+
+// This file was modified by Oracle on 2013-2020.
+// Modifications copyright (c) 2013-2020, Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Use, modification and distribution is subject to the Boost Software License,
 // Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
@@ -14,15 +18,19 @@
 #ifndef BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_RANGE_BY_SECTION_HPP
 #define BOOST_GEOMETRY_ALGORITHMS_DETAIL_SECTIONS_RANGE_BY_SECTION_HPP
 
-
-#include <boost/mpl/assert.hpp>
-#include <boost/range.hpp>
+#include <boost/range/size.hpp>
+#include <boost/range/value_type.hpp>
 
 #include <boost/geometry/core/access.hpp>
+#include <boost/geometry/core/assert.hpp>
 #include <boost/geometry/core/closure.hpp>
 #include <boost/geometry/core/exterior_ring.hpp>
 #include <boost/geometry/core/interior_rings.hpp>
-
+#include <boost/geometry/core/ring_type.hpp>
+#include <boost/geometry/core/static_assert.hpp>
+#include <boost/geometry/core/tags.hpp>
+#include <boost/geometry/geometries/concepts/check.hpp>
+#include <boost/geometry/util/range.hpp>
 
 
 namespace boost { namespace geometry
@@ -36,7 +44,7 @@ namespace detail { namespace section
 template <typename Range, typename Section>
 struct full_section_range
 {
-    static inline Range const& apply(Range const& range, Section const& section)
+    static inline Range const& apply(Range const& range, Section const& )
     {
         return range;
     }
@@ -50,7 +58,32 @@ struct full_section_polygon
     {
         return section.ring_id.ring_index < 0
             ? geometry::exterior_ring(polygon)
-            : geometry::interior_rings(polygon)[section.ring_id.ring_index];
+            : range::at(geometry::interior_rings(polygon),
+                        static_cast<std::size_t>(section.ring_id.ring_index));
+    }
+};
+
+
+template
+<
+    typename MultiGeometry,
+    typename Section,
+    typename Policy
+>
+struct full_section_multi
+{
+    static inline typename ring_return_type<MultiGeometry const>::type apply(
+                MultiGeometry const& multi, Section const& section)
+    {
+        typedef typename boost::range_size<MultiGeometry>::type size_type;
+
+        BOOST_GEOMETRY_ASSERT
+            (
+                section.ring_id.multi_index >= 0
+                && size_type(section.ring_id.multi_index) < boost::size(multi)
+            );
+
+        return Policy::apply(range::at(multi, size_type(section.ring_id.multi_index)), section);
     }
 };
 
@@ -72,11 +105,9 @@ template
 >
 struct range_by_section
 {
-    BOOST_MPL_ASSERT_MSG
-        (
-            false, NOT_OR_NOT_YET_IMPLEMENTED_FOR_THIS_GEOMETRY_TYPE
-            , (types<Geometry>)
-        );
+    BOOST_GEOMETRY_STATIC_ASSERT_FALSE(
+        "Not or not yet implemented for this Geometry type.",
+        Tag, Geometry, Section);
 };
 
 
@@ -98,6 +129,35 @@ struct range_by_section<polygon_tag, Polygon, Section>
 {};
 
 
+template <typename MultiPolygon, typename Section>
+struct range_by_section<multi_polygon_tag, MultiPolygon, Section>
+    : detail::section::full_section_multi
+        <
+            MultiPolygon,
+            Section,
+            detail::section::full_section_polygon
+                <
+                    typename boost::range_value<MultiPolygon>::type,
+                    Section
+                >
+       >
+{};
+
+template <typename MultiLinestring, typename Section>
+struct range_by_section<multi_linestring_tag, MultiLinestring, Section>
+    : detail::section::full_section_multi
+        <
+            MultiLinestring,
+            Section,
+            detail::section::full_section_range
+                <
+                    typename boost::range_value<MultiLinestring>::type,
+                    Section
+                >
+       >
+{};
+
+
 } // namespace dispatch
 #endif
 
@@ -115,7 +175,7 @@ template <typename Geometry, typename Section>
 inline typename ring_return_type<Geometry const>::type
             range_by_section(Geometry const& geometry, Section const& section)
 {
-    concept::check<Geometry const>();
+    concepts::check<Geometry const>();
 
     return dispatch::range_by_section
         <

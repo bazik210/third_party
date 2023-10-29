@@ -1,8 +1,8 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2008-2011 Bruno Lalande, Paris, France.
-// Copyright (c) 2008-2011 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
+// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
+// Copyright (c) 2008-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -15,35 +15,21 @@
 #ifndef BOOST_GEOMETRY_GEOMETRIES_CONCEPTS_BOX_CONCEPT_HPP
 #define BOOST_GEOMETRY_GEOMETRIES_CONCEPTS_BOX_CONCEPT_HPP
 
-
 #include <cstddef>
 
 #include <boost/concept_check.hpp>
-
+#include <boost/core/ignore_unused.hpp>
 
 #include <boost/geometry/core/access.hpp>
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/core/point_type.hpp>
 
+#include <boost/geometry/geometries/concepts/concept_type.hpp>
 
-namespace boost { namespace geometry { namespace concept
+
+namespace boost { namespace geometry { namespace concepts
 {
 
-
-/*!
-\brief Box concept
-\ingroup concepts
-\par Formal definition:
-The box concept is defined as following:
-- there must be a specialization of traits::tag defining box_tag as type
-- there must be a specialization of traits::point_type to define the
-  underlying point type (even if it does not consist of points, it should define
-  this type, to indicate the points it can work with)
-- there must be a specialization of traits::indexed_access, per index
-  (min_corner, max_corner) and per dimension, with two functions:
-  - get to get a coordinate value
-  - set to set a coordinate value (this one is not checked for ConstBox)
-*/
 template <typename Geometry>
 class Box
 {
@@ -109,7 +95,7 @@ class ConstBox
         {
             const Geometry* b = 0;
             coordinate_type coord(geometry::get<Index, Dimension>(*b));
-            boost::ignore_unused_variable_warning(coord);
+            boost::ignore_unused(coord);
             dimension_checker<Index, Dimension + 1, DimensionCount>::apply();
         }
     };
@@ -130,7 +116,21 @@ public :
 #endif
 };
 
-}}} // namespace boost::geometry::concept
+
+template <typename Geometry>
+struct concept_type<Geometry, box_tag>
+{
+    using type = Box<Geometry>;
+};
+
+template <typename Geometry>
+struct concept_type<Geometry const, box_tag>
+{
+    using type = ConstBox<Geometry>;
+};
+
+
+}}} // namespace boost::geometry::concepts
 
 
 #endif // BOOST_GEOMETRY_GEOMETRIES_CONCEPTS_BOX_CONCEPT_HPP

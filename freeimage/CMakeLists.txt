@@ -1,0 +1,7 @@
+add_subdirectory(FreeImageLib)
+add_subdirectory(LibJPEG)
+add_subdirectory(LibMNG)
+add_subdirectory(LibOpenJPEG)
+add_subdirectory(LibPNG)
+add_subdirectory(LibTIFF)
+add_subdirectory(OpenEXR)

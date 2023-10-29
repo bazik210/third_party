@@ -348,7 +348,7 @@ namespace Microsoft.Windows.Controls
             {
                 convertedValue = valueToConvert;
             }
-#if !VS2008
+#if VS2008
             else if (String.IsNullOrWhiteSpace(valueToConvert))
             {
                 convertedValue = Activator.CreateInstance(dataType);

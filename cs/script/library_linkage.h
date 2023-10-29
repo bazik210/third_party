@@ -11,6 +11,6 @@
 
 #include <cs/library_names.h>
 
-#pragma comment(lib, CS_LIBRARY_NAME( script, lib ) )
+#pragma comment(lib, "xray_script_cs.lib" )
 
 #endif // #ifndef CS_SCRIPT_LIBRARY_LINKAGE_H_INCLUDED

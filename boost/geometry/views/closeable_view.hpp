@@ -1,8 +1,12 @@
 // Boost.Geometry (aka GGL, Generic Geometry Library)
 
-// Copyright (c) 2007-2011 Barend Gehrels, Amsterdam, the Netherlands.
-// Copyright (c) 2008-2011 Bruno Lalande, Paris, France.
-// Copyright (c) 2009-2011 Mateusz Loskot, London, UK.
+// Copyright (c) 2007-2012 Barend Gehrels, Amsterdam, the Netherlands.
+// Copyright (c) 2008-2012 Bruno Lalande, Paris, France.
+// Copyright (c) 2009-2012 Mateusz Loskot, London, UK.
+
+// This file was modified by Oracle on 2020-2021.
+// Modifications copyright (c) 2020-2021 Oracle and/or its affiliates.
+// Contributed and/or modified by Adam Wulkiewicz, on behalf of Oracle
 
 // Parts of Boost.Geometry are redesigned from Geodan's Geographic Library
 // (geolib/GGL), copyright (c) 1995-2010 Geodan, Amsterdam, the Netherlands.
@@ -14,10 +18,8 @@
 #ifndef BOOST_GEOMETRY_VIEWS_CLOSEABLE_VIEW_HPP
 #define BOOST_GEOMETRY_VIEWS_CLOSEABLE_VIEW_HPP
 
-
-#include <boost/range.hpp>
-
 #include <boost/geometry/core/closure.hpp>
+#include <boost/geometry/core/point_order.hpp>
 #include <boost/geometry/core/ring_type.hpp>
 #include <boost/geometry/core/tag.hpp>
 #include <boost/geometry/core/tags.hpp>
@@ -28,40 +30,63 @@
 namespace boost { namespace geometry
 {
 
-#ifndef DOXYGEN_NO_DETAIL
 
+#ifndef DOXYGEN_NO_DETAIL
 namespace detail
 {
 
 template <typename Range>
 struct closing_view
 {
+    using iterator = closing_iterator<Range const>;
+    using const_iterator = closing_iterator<Range const>;
+
     // Keep this explicit, important for nested views/ranges
-    explicit inline closing_view(Range& r)
-        : m_range(r)
+    explicit inline closing_view(Range const& r)
+        : m_begin(r)
+        , m_end(r, true)
     {}
 
-    typedef closing_iterator<Range> iterator;
-    typedef closing_iterator<Range const> const_iterator;
+    inline const_iterator begin() const { return m_begin; }
+    inline const_iterator end() const { return m_end; }
 
-    inline const_iterator begin() const { return const_iterator(m_range); }
-    inline const_iterator end() const { return const_iterator(m_range, true); }
-
-    inline iterator begin() { return iterator(m_range); }
-    inline iterator end() { return iterator(m_range, true); }
-private :
-    Range& m_range;
+private:
+    const_iterator m_begin;
+    const_iterator m_end;
 };
 
-}
 
+template
+<
+    typename Range,
+    closure_selector Close = geometry::closure<Range>::value
+>
+struct closed_view
+    : identity_view<Range>
+{
+    explicit inline closed_view(Range const& r)
+        : identity_view<Range const>(r)
+    {}
+};
+
+template <typename Range>
+struct closed_view<Range, open>
+    : closing_view<Range>
+{
+    explicit inline closed_view(Range const& r)
+        : closing_view<Range const>(r)
+    {}
+};
+
+
+} // namespace detail
 #endif // DOXYGEN_NO_DETAIL
 
 
 /*!
 \brief View on a range, either closing it or leaving it as it is
 \details The closeable_view is used internally by the library to handle all rings,
-    either closed or open, the same way. The default method is closed, all 
+    either closed or open, the same way. The default method is closed, all
     algorithms process rings as if they are closed. Therefore, if they are opened,
     a view is created which closes them.
     The closeable_view might be used by library users, but its main purpose is
@@ -80,18 +105,43 @@ struct closeable_view {};
 template <typename Range>
 struct closeable_view<Range, closed>
 {
-    typedef identity_view<Range> type;
+    using type = identity_view<Range>;
 };
 
 
 template <typename Range>
 struct closeable_view<Range, open>
 {
-    typedef detail::closing_view<Range> type;
+    using type = detail::closing_view<Range>;
 };
 
 #endif // DOXYGEN_NO_SPECIALIZATIONS
 
+
+#ifndef DOXYGEN_NO_TRAITS_SPECIALIZATIONS
+namespace traits
+{
+
+
+template <typename Range, closure_selector Close>
+struct tag<detail::closed_view<Range, Close> >
+    : geometry::tag<Range>
+{};
+
+template <typename Range, closure_selector Close>
+struct point_order<detail::closed_view<Range, Close> >
+    : geometry::point_order<Range>
+{};
+
+template <typename Range, closure_selector Close>
+struct closure<detail::closed_view<Range, Close> >
+{
+    static const closure_selector value = closed;
+};
+
+
+} // namespace traits
+#endif // DOXYGEN_NO_TRAITS_SPECIALIZATIONS
 
 
 }} // namespace boost::geometry

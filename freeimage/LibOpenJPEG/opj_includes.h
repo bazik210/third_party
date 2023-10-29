@@ -90,21 +90,22 @@ Most compilers implement their own version of this keyword ...
 	#endif
 #endif
 
-/* MSVC does not have lrintf */
-#ifdef _MSC_VER
-static INLINE long lrintf(float f){
-	//int i;
-
-	//_asm{
-	//	fld f
-	//	fistp i
-	//};
-
-	//return i;
-
-	return _mm_cvtss_si32(_mm_load_ss(&f));
-}
-#endif
+// Now it has it :)
+// /* MSVC does not have lrintf */
+// #ifdef _MSC_VER
+// static INLINE long lrintf(float f){
+// 	//int i;
+// 
+// 	//_asm{
+// 	//	fld f
+// 	//	fistp i
+// 	//};
+// 
+// 	//return i;
+// 
+// 	return _mm_cvtss_si32(_mm_load_ss(&f));
+// }
+// #endif
 
 #include "j2k_lib.h"
 #include "opj_malloc.h"
