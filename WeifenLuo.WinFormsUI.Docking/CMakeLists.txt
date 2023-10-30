@@ -213,3 +213,11 @@ csharp_set_designer_cs_properties(
 #                   PRE_BUILD 
 #                   COMMAND erase /Q "$(TargetDir)WeifenLuo.WinFormsUI.Docking.dll"
 # )
+
+set_target_properties(WeifenLuo.WinFormsUI.Docking PROPERTIES DOTNET_TARGET_FRAMEWORK_VERSION "v4.8")
+
+set_target_properties(WeifenLuo.WinFormsUI.Docking PROPERTIES VS_DOTNET_REFERENCES
+    "System;System.Data;System.Design;System.Drawing;System.Windows.Forms;System.Xml;System.Xaml"
+)
+
+set_property(TARGET WeifenLuo.WinFormsUI.Docking PROPERTY VS_GLOBAL_RootNamespace "WeifenLuo.WinFormsUI")

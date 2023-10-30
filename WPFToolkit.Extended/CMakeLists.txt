@@ -295,3 +295,11 @@ csharp_set_designer_cs_properties(
 #                    PRE_BUILD 
 #                    COMMAND erase /Q "$(TargetDir)WPFToolkit.Extended.dll"
 # )
+
+set_target_properties(WPFToolkit.Extended PROPERTIES DOTNET_TARGET_FRAMEWORK_VERSION "v4.8")
+
+set_target_properties(WPFToolkit.Extended PROPERTIES VS_DOTNET_REFERENCES
+    "System;System.Data;System.Xml;System.Core;System.Xml.Linq;System.Xaml;System.Data.DataSetExtensions;UIAutomationProvider;WindowsBase;PresentationCore;PresentationFramework"
+)
+
+set_property(TARGET WPFToolkit.Extended PROPERTY VS_GLOBAL_RootNamespace "Microsoft.Windows.Controls")
