@@ -35,7 +35,7 @@ target_compile_definitions(zlib PRIVATE
     _CRT_SECURE_NO_WARNINGS
 )
 
-set_target_properties(zlib PROPERTIES FOLDER "engine/sdk/common")
+set_target_properties(zlib PROPERTIES FOLDER "engine/sdk/zlib")
 
 
 
@@ -76,4 +76,4 @@ target_compile_definitions(zlibN PRIVATE
     _CRT_SECURE_NO_WARNINGS
 )
 
-set_target_properties(zlibN PROPERTIES FOLDER "engine/sdk/bugtrap")
+set_target_properties(zlibN PROPERTIES FOLDER "engine/sdk/zlib")
