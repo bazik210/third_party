@@ -16,7 +16,7 @@ add_library(minizip STATIC
 						"${CMAKE_CURRENT_SOURCE_DIR}/zip.h"
 )
 
-set_target_properties(minizip PROPERTIES FOLDER "engine/sdk/bugtrap")
+set_target_properties(minizip PROPERTIES FOLDER "engine/sdk/minizip")
 
 target_compile_definitions(minizip PRIVATE
     WIN32
@@ -50,4 +50,4 @@ target_compile_definitions(minizipN PRIVATE
     _CRT_SECURE_NO_WARNINGS
 )
 
-set_target_properties(minizipN PROPERTIES FOLDER "engine/sdk/bugtrap")
+set_target_properties(minizipN PROPERTIES FOLDER "engine/sdk/minizip")
