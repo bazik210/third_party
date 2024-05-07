@@ -257,7 +257,7 @@ LUABIND_BINARY_OP_DEF(<, lua_lessthan)
   typename enable_binary<bool,LHS,RHS>::type 
   operator!=(LHS const& lhs, RHS const& rhs)
   {
-      return !(lhs < rhs);
+      return !(lhs == rhs);
   }
 
   template<class ValueWrapper, class Arguments>
@@ -1001,6 +1001,11 @@ namespace detail
       return cv.apply(interpreter, LUABIND_DECORATE_TYPE(T), -1);
   }
 
+# ifdef BOOST_MSVC
+#  pragma warning(push)
+#  pragma warning(disable:4702) // unreachable code
+# endif
+
   template<class T>
   struct throw_error_policy
   {
@@ -1019,6 +1024,10 @@ namespace detail
           return *(typename boost::remove_reference<T>::type*)0;
       }
   };
+
+# ifdef BOOST_MSVC
+#  pragma warning(pop)
+# endif
 
   template<class T>
   struct nothrow_error_policy
