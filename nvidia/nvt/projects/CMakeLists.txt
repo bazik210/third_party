@@ -125,6 +125,11 @@ target_link_libraries(nvtt PRIVATE
 	squish
 )
 
+# set compiler flags
+target_compile_options(nvtt PRIVATE
+        $<$<CONFIG:Release>:/Ob1>
+    )
+
 set_target_properties(nvtt PROPERTIES FOLDER "engine/sdk/nvidia")
 
 
